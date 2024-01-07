@@ -1,0 +1,8 @@
+[package]
+authors = ["Chris - V0idMatr1x"]
+name = "host_discovery"
+license = "MIT"
+description = "A simple Rust crate for host discovery"
+version = "1.2.3"
+repository = "https://chiselapp.com/user/V0idMatr1x/repository/host_discovery/file?name=README.md"
+edition = "2021"
