@@ -14,7 +14,9 @@
   - ***fn*** `is_subsystem_env`: Returns a boolean based on whether the Linux environment is a Windows subsystem
 
 - Add to your project
-  - `cargo add host_discovery`
+```sh 
+    cargo add host_discovery
+```
 
 - Planned Features:
   - Detect Windows Edition
