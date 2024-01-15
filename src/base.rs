@@ -8,6 +8,11 @@ pub struct LinuxSystem {
     pub version_id: String,
 }
 
+pub struct WindowsSystem {
+    pub edition: String,
+    pub version: String,
+}
+
 #[derive(Debug, PartialEq)]
 pub enum OperatingSystem {
     Linux,
@@ -52,10 +57,10 @@ impl Parser for Data {
         let capture = contents
             .lines()
             .find(|line| line.starts_with(env_var))
-            .expect("Unable to find the specified environment variable")
+            .expect("Failed to find the specified environment variable")
             .split(elem)
             .nth(1)
-            .expect("Unable to parse environment variable")
+            .expect("Failed to parse environment variable")
             .trim_matches('"')
             .to_string();
         capture
@@ -83,6 +88,19 @@ impl PartialProfile for LinuxSystem {
     fn get_version(self) -> String {
         self.version_id
     }
+}
+
+impl PartialProfile for WindowsSystem {
+    fn partial(self) -> Self {
+        Self {
+            edition: self.edition,
+            version: self.version,
+        }
+    }
+
+    fn get_os_variant(self) -> String { self.edition }
+
+    fn get_version(self) -> String { self.version }
 }
 
 // impl_display: Implements the Display trait for OperatingSystem and Architecture

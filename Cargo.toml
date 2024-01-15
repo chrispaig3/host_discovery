@@ -6,3 +6,6 @@ description = "A simple Rust crate for host discovery"
 version = "1.2.5"
 repository = "https://github.com/v0idmatr1x/host_discovery"
 edition = "2021"
+
+[dependencies]
+winreg = "0.52.0"
