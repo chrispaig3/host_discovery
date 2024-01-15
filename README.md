@@ -13,7 +13,7 @@
   - ***fn*** `detect_distro_version`: Returns a String containing the version id of the running Linux distribution
   - ***fn*** `is_subsystem_env`: Returns a boolean based on whether the Linux environment is a Windows subsystem
   - ***fn*** `lookup_windows_edition` Returns a String containing the Windows edition via the registry
-  - ***fn*** `lookup_product_name` Returns a String containing the version & edition of Windows
+  - ***fn*** `lookup_product_name` Returns a String containing the version & edition of Windows via the registry
 
 - Add to your project
 ```sh 
