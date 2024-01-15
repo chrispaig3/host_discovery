@@ -96,8 +96,8 @@ impl PartialProfile for WindowsSystem {
             edition: self.edition,
             version: self.version,
         }
-
     }
+
     fn get_os_variant(self) -> String { self.edition }
 
     fn get_version(self) -> String { self.version }
