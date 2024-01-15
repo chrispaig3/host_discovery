@@ -9,8 +9,8 @@ pub struct LinuxSystem {
 }
 
 pub struct WindowsSystem {
-    edition: String,
-    version: String,
+    pub edition: String,
+    pub version: String,
 }
 
 #[derive(Debug, PartialEq)]
