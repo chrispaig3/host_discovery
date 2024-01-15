@@ -52,7 +52,7 @@ pub trait Parser {
 
 impl Parser for Data {
     fn parse(path: &'static str, env_var: &'static str, elem: char) -> String {
-        let contents = fs::read_to_string(path).expect("Unable to read file");
+        let contents = fs::read_to_string(path).expect("Failed to read file");
 
         let capture = contents
             .lines()
