@@ -3,7 +3,7 @@ authors = ["Chris - V0idMatr1x"]
 name = "host_discovery"
 license = "MIT"
 description = "A simple Rust crate for host discovery"
-version = "1.2.5"
+version = "1.3.0"
 repository = "https://github.com/v0idmatr1x/host_discovery"
 edition = "2021"
 
