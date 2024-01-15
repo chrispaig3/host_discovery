@@ -3,6 +3,8 @@ use std::{
     path::Path,
 };
 
+use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
+
 mod base;
 use base::{
     Architecture,
@@ -94,6 +96,16 @@ pub fn is_subsystem_env() -> bool {
     interop_path
 }
 
+/// lookup_windows_edition returns the EditionID via the registry
+pub fn lookup_windows_edition() -> String {
+    WindowsSystem::get_os_variant(windows_profile())
+}
+
+/// lookup_product_name returns the ProductName via the registry
+pub fn lookup_product_name() -> String {
+    WindowsSystem::get_version(windows_profile())
+}
+
 // linux_profile acts as a constructor for LinuxSystem
 fn linux_profile() -> LinuxSystem {
     let profile = LinuxSystem {
@@ -106,8 +118,16 @@ fn linux_profile() -> LinuxSystem {
 
 fn windows_profile() -> WindowsSystem {
     let profile = WindowsSystem {
-        edition: todo!(),
-        version: todo!(),
+        edition:  RegKey::predef(HKEY_LOCAL_MACHINE)
+            .open_subkey("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion")
+            .unwrap()
+            .get_value("EditionID")
+            .expect("Failed to retrieve Windows edition"),
+        version:  RegKey::predef(HKEY_LOCAL_MACHINE)
+            .open_subkey("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion")
+            .unwrap()
+            .get_value("ProductName")
+            .expect("Failed to retrieve Windows version"),
     };
 
     WindowsSystem::partial(profile)
@@ -160,5 +180,15 @@ mod tests {
     #[test]
     fn test_is_subsystem_env() {
         test_fn(is_subsystem_env, false);
+    }
+
+    #[test]
+    fn test_lookup_windows_edition() {
+        test_fn(lookup_windows_edition, "Professional".to_string());
+    }
+
+    #[test]
+    fn test_lookup_product_name() {
+        test_fn(lookup_product_name, "Windows 10 Pro".to_string());
     }
 }

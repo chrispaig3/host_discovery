@@ -57,10 +57,10 @@ impl Parser for Data {
         let capture = contents
             .lines()
             .find(|line| line.starts_with(env_var))
-            .expect("Unable to find the specified environment variable")
+            .expect("Failed to find the specified environment variable")
             .split(elem)
             .nth(1)
-            .expect("Unable to parse environment variable")
+            .expect("Failed to parse environment variable")
             .trim_matches('"')
             .to_string();
         capture
