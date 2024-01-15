@@ -8,6 +8,11 @@ pub struct LinuxSystem {
     pub version_id: String,
 }
 
+pub struct WindowsSystem {
+    edition: String,
+    version: String,
+}
+
 #[derive(Debug, PartialEq)]
 pub enum OperatingSystem {
     Linux,
@@ -83,6 +88,19 @@ impl PartialProfile for LinuxSystem {
     fn get_version(self) -> String {
         self.version_id
     }
+}
+
+impl PartialProfile for WindowsSystem {
+    fn partial(self) -> Self {
+        Self {
+            edition: self.edition,
+            version: self.version,
+        }
+
+    }
+    fn get_os_variant(self) -> String { self.edition }
+
+    fn get_version(self) -> String { self.version }
 }
 
 // impl_display: Implements the Display trait for OperatingSystem and Architecture
