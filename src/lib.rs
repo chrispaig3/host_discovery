@@ -2,8 +2,11 @@ use std::{
     env::consts::{ARCH, OS},
     path::Path,
 };
+use std::slice::Windows;
+
 mod base;
 use base::{Architecture, Data, LinuxSystem, OperatingSystem, Parser, PartialProfile};
+use crate::base::WindowsSystem;
 
 static SYS_META: [&str; 2] = [OS, ARCH];
 static ENV_META: [&str; 2] = ["NAME=", "VERSION_ID="];
@@ -93,6 +96,15 @@ fn linux_profile() -> LinuxSystem {
     };
 
     LinuxSystem::partial(profile)
+}
+
+fn windows_profile() -> WindowsSystem {
+    let profile = WindowsSystem {
+        edition: todo!(),
+        version: todo!(),
+    };
+
+    WindowsSystem::partial(profile)
 }
 
 #[cfg(test)]
