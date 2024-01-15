@@ -120,12 +120,12 @@ fn windows_profile() -> WindowsSystem {
     let profile = WindowsSystem {
         edition:  RegKey::predef(HKEY_LOCAL_MACHINE)
             .open_subkey("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion")
-            .unwrap()
+            .expect("Failed to open key")
             .get_value("EditionID")
             .expect("Failed to retrieve Windows edition"),
         version:  RegKey::predef(HKEY_LOCAL_MACHINE)
             .open_subkey("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion")
-            .unwrap()
+            .expect("Failed to open key")
             .get_value("ProductName")
             .expect("Failed to retrieve Windows version"),
     };
