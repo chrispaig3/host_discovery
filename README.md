@@ -19,7 +19,7 @@
 
 - FreeBSD + MacOS-specific functionality and broad support for detecting hardware (such as GPUs and other connected devices).  
 
-## Add to your project
+### Add to your project
 ```sh 
     cargo add host_discovery
 ```
