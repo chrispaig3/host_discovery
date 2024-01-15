@@ -16,9 +16,10 @@
   - ***fn*** `lookup_product_name` Returns a String containing the version & edition of Windows via the registry
 
 > Note: I have plans to extend the feature set across platforms
-  - FreeBSD + MacOS-specific functionality and broad support for detecting hardware (such as GPUs and other connected devices).  
 
-- Add to your project
+- FreeBSD + MacOS-specific functionality and broad support for detecting hardware (such as GPUs and other connected devices).  
+
+## Add to your project
 ```sh 
     cargo add host_discovery
 ```
