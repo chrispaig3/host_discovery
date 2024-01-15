@@ -81,13 +81,9 @@ impl PartialProfile for LinuxSystem {
         }
     }
 
-    fn get_os_variant(self) -> String {
-        self.distro
-    }
+    fn get_os_variant(self) -> String { self.distro }
 
-    fn get_version(self) -> String {
-        self.version_id
-    }
+    fn get_version(self) -> String { self.version_id }
 }
 
 impl PartialProfile for WindowsSystem {
