@@ -2,11 +2,17 @@ use std::{
     env::consts::{ARCH, OS},
     path::Path,
 };
-use std::slice::Windows;
 
 mod base;
-use base::{Architecture, Data, LinuxSystem, OperatingSystem, Parser, PartialProfile};
-use crate::base::WindowsSystem;
+use base::{
+    Architecture,
+    Data,
+    Parser,
+    LinuxSystem,
+    WindowsSystem,
+    OperatingSystem,
+    PartialProfile
+};
 
 static SYS_META: [&str; 2] = [OS, ARCH];
 static ENV_META: [&str; 2] = ["NAME=", "VERSION_ID="];
