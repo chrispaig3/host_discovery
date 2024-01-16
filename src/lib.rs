@@ -92,8 +92,7 @@ pub fn detect_distro_version() -> String {
 
 /// Checks if the linux environment is a Windows subsystem
 pub fn is_subsystem_env() -> bool {
-    let interop_path = Path::new("/proc/sys/fs/binfmt_misc/WSLInterop").exists();
-    interop_path
+    Path::new("/proc/sys/fs/binfmt_misc/WSLInterop").exists()
 }
 
 /// lookup_windows_edition returns the EditionID via the registry
