@@ -7,10 +7,10 @@ use std::{
 use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
 
 mod base;
-#[allow(unused_imports)]
-use base::{
-    Architecture, Data, LinuxSystem, OperatingSystem, Parser, PartialProfile, WindowsSystem,
-};
+use base::{Architecture, Data, LinuxSystem, OperatingSystem, Parser, PartialProfile};
+
+#[cfg(target_os = "windows")]
+use base::WindowsSystem;
 
 static SYS_META: [&str; 2] = [OS, ARCH];
 static ENV_META: [&str; 2] = ["NAME=", "VERSION_ID="];
