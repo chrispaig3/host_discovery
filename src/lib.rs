@@ -60,7 +60,7 @@ pub fn detect_arch() -> Architecture {
     arch
 }
 
-/// Returns the CPU core count via `proc/cpuinfo`
+/// Returns the CPU core count via `/proc/cpuinfo`
 pub fn cpu_cores() -> u32 {
     Data::parse("/proc/cpuinfo", "cpu cores", ':')
         .trim()
