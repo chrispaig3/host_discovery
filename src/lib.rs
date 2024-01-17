@@ -3,7 +3,7 @@ use std::{
     path::Path,
 };
 
-#[cfg(targeT_os = "windows")]
+#[cfg(target_os = "windows")]
 use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
 
 mod base;
@@ -92,13 +92,13 @@ pub fn is_subsystem_env() -> bool {
 }
 
 /// lookup_windows_edition returns the EditionID via the registry
-#[cfg(targeT_os = "windows")]
+#[cfg(target_os = "windows")]
 pub fn lookup_windows_edition() -> String {
     WindowsSystem::get_os_variant(windows_profile())
 }
 
 /// lookup_product_name returns the ProductName via the registry
-#[cfg(targeT_os = "windows")]
+#[cfg(target_os = "windows")]
 pub fn lookup_product_name() -> String {
     WindowsSystem::get_version(windows_profile())
 }
@@ -113,7 +113,7 @@ fn linux_profile() -> LinuxSystem {
     LinuxSystem::partial(profile)
 }
 
-#[cfg(targeT_os = "windows")]
+#[cfg(target_os = "windows")]
 fn windows_profile() -> WindowsSystem {
     let profile = WindowsSystem {
         edition: RegKey::predef(HKEY_LOCAL_MACHINE)
