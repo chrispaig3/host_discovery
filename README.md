@@ -20,3 +20,6 @@
     cargo add host_discovery
 ```
 
+- Planned Features
+  - GPU enumeration & extended device detection.
+
