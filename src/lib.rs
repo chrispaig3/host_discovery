@@ -181,13 +181,15 @@ mod tests {
         test_fn(is_subsystem_env, false);
     }
 
-    //#[test]
-    //fn test_lookup_windows_edition() {
-    //    test_fn(lookup_windows_edition, "Professional".to_string());
-    //}
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn test_lookup_windows_edition() {
+        test_fn(lookup_windows_edition, "Professional".to_string());
+    }
 
-    //#[test]
-    //fn test_lookup_product_name() {
-    //    test_fn(lookup_product_name, "Windows 10 Pro".to_string());
-    //}
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn test_lookup_product_name() {
+        test_fn(lookup_product_name, "Windows 10 Pro".to_string());
+    }
 }
