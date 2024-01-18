@@ -33,5 +33,5 @@ fn main() {
 ```
 
 - Planned Features
-  - GPU enumeration & extended CPU + device detection.
+  - GPU enumeration & extended device detection.
 
