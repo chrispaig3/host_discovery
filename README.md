@@ -2,7 +2,7 @@
 
 > Make more decisions based on the characteristics of the environment you are working in.
 
-> Basic Usage
+- Basic Usage
 
 ```rust
 use host_discovery::{detect_arch, detect_distro, detect_os};
