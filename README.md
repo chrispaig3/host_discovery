@@ -4,6 +4,18 @@
 
 > Basic Usage
 
+```rust
+use host_discovery::{detect_arch, detect_distro, detect_os};
+
+fn main() {
+    let os = detect_os();
+    let distro = detect_distro();
+    let arch = detect_arch();
+
+    println!("OS: {}\nDistro: {}\nArch: {}", os, distro, arch);
+}
+```
+
 - API
   - ***fn*** `detect_os`: Returns a variant of OperatingSystem
   - ***fn*** `detect_arch`: Returns a variant of Architecture
