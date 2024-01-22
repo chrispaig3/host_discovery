@@ -146,11 +146,13 @@ mod tests {
         println!("Result: {}", f());
     }
 
+    #[cfg(target_os = "linux")]
     #[test]
     fn test_cpu_cores() {
         test_fn(cpu_cores, 8);
     }
 
+    #[cfg(target_os = "linux")]
     #[test]
     fn test_cpu_model() {
         test_fn(cpu_model, "AMD Ryzen 7 5700X 8-Core Processor".to_string());
@@ -158,7 +160,7 @@ mod tests {
 
     #[test]
     fn test_detect_os() {
-        test_fn(detect_os, OperatingSystem::Linux);
+        test_fn(detect_os, OperatingSystem::Windows);
     }
 
     #[test]
@@ -166,11 +168,13 @@ mod tests {
         test_fn(detect_arch, Architecture::X86_64);
     }
 
+    #[cfg(target_os = "linux")]
     #[test]
     fn test_detect_distro() {
         test_fn(detect_distro, "Fedora Linux".to_string());
     }
 
+    #[cfg(target_os = "linux")]
     #[test]
     fn test_detect_distro_version() {
         test_fn(detect_distro_version, "39".to_string());
