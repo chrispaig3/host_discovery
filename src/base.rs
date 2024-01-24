@@ -1,8 +1,6 @@
 use core::fmt::{Display, Formatter, Result};
 use std::fs;
 
-pub struct Data;
-
 pub struct LinuxSystem {
     pub distro: String,
     pub version_id: String,
@@ -47,11 +45,11 @@ pub enum Architecture {
 }
 
 pub trait Parser {
-    fn parse(path: &'static str, env_var: &'static str, elem: char) -> String;
+    fn select(path: &'static str, env_var: &'static str, elem: char) -> String;
 }
 
-impl Parser for Data {
-    fn parse(path: &'static str, env_var: &'static str, elem: char) -> String {
+impl Parser for String {
+    fn select(path: &'static str, env_var: &'static str, elem: char) -> String {
         let contents = fs::read_to_string(path).expect("Failed to read file");
 
         let capture = contents
@@ -81,9 +79,13 @@ impl PartialProfile for LinuxSystem {
         }
     }
 
-    fn get_os_variant(self) -> String { self.distro }
+    fn get_os_variant(self) -> String {
+        self.distro
+    }
 
-    fn get_version(self) -> String { self.version_id }
+    fn get_version(self) -> String {
+        self.version_id
+    }
 }
 
 impl PartialProfile for WindowsSystem {
@@ -94,9 +96,13 @@ impl PartialProfile for WindowsSystem {
         }
     }
 
-    fn get_os_variant(self) -> String { self.edition }
+    fn get_os_variant(self) -> String {
+        self.edition
+    }
 
-    fn get_version(self) -> String { self.version }
+    fn get_version(self) -> String {
+        self.version
+    }
 }
 
 // impl_display: Implements the Display trait for OperatingSystem and Architecture
