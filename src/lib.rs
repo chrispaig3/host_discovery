@@ -7,7 +7,7 @@ use std::{
 use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
 
 mod base;
-use base::{Architecture, Data, LinuxSystem, OperatingSystem, Parser, PartialProfile};
+use base::{Architecture, LinuxSystem, OperatingSystem, Parser, PartialProfile};
 
 #[cfg(target_os = "windows")]
 use base::WindowsSystem;
@@ -62,16 +62,15 @@ pub fn detect_arch() -> Architecture {
 
 /// Returns the CPU core count via `/proc/cpuinfo`
 pub fn cpu_cores() -> u32 {
-    Data::parse("/proc/cpuinfo", "cpu cores", ':')
+    String::select("/proc/cpuinfo", "cpu cores", ':')
         .trim()
-        .to_string()
-        .parse()
+        .parse::<u32>()
         .expect("Failed to parse String to unsigned int")
 }
 
 /// Returns the CPU model name via `/proc/cpuinfo`
 pub fn cpu_model() -> String {
-    Data::parse("/proc/cpuinfo", "model name", ':')
+    String::select("/proc/cpuinfo", "model name", ':')
         .trim()
         .to_string()
 }
@@ -106,8 +105,8 @@ pub fn lookup_product_name() -> String {
 // linux_profile acts as a constructor for LinuxSystem
 fn linux_profile() -> LinuxSystem {
     let profile = LinuxSystem {
-        distro: Data::parse("/etc/os-release", ENV_META[NAME as usize], '='),
-        version_id: Data::parse("/etc/os-release", ENV_META[VERSION_ID as usize], '='),
+        distro: String::select("/etc/os-release", ENV_META[NAME as usize], '='),
+        version_id: String::select("/etc/os-release", ENV_META[VERSION_ID as usize], '='),
     };
 
     LinuxSystem::partial(profile)
