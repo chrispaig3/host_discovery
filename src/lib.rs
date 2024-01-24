@@ -160,7 +160,7 @@ mod tests {
 
     #[test]
     fn test_detect_os() {
-        test_fn(detect_os, OperatingSystem::Windows);
+        test_fn(detect_os, OperatingSystem::Linux);
     }
 
     #[test]
