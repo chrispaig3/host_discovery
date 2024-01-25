@@ -65,16 +65,16 @@ impl Parser for String {
         let contents = fs::read_to_string(path).expect("Failed to read file");
         
         let capture = contents
-        .lines()
-        .find(|line| line.starts_with(env_var))
-        .expect("Failed to find the specified environment variable")
-        .split(elem)
-        .nth(1)
-        .expect("Failed to parse environment variable")
-        .trim_matches('"')
-        .to_string();
-    capture
-}
+            .lines()
+            .find(|line| line.starts_with(env_var))
+            .expect("Failed to find the specified environment variable")
+            .split(elem)
+            .nth(1)
+            .expect("Failed to parse environment variable")
+            .trim_matches('"')
+            .to_string();
+        capture
+    }
 }
 
 impl LinuxSystem for Environment {
