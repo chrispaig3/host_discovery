@@ -1,70 +1,174 @@
-use std::env::consts::{ARCH, OS};
-
-mod base;
-use base::{Architecture, OperatingSystem, Parser};
-pub use base::{LinuxSystem, System};
+use core::fmt::{Display, Formatter, Result};
+use std::path::Path;
+use std::fs;
 
 #[cfg(target_os = "windows")]
-pub use base::WindowsSystem;
+use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
 
-static SYS_META: [&str; 2] = [OS, ARCH];
-// Index Constants
-const OS_: u8 = 0;
-const ARCH_: u8 = 1;
+pub struct Environment;
 
-/// Returns the name of the host operating system; matches against `std::env::consts::OS`
-pub fn detect_os() -> OperatingSystem {
-    let os = match SYS_META[OS_ as usize] {
-        "linux" => OperatingSystem::Linux,
-        "android" => OperatingSystem::Android,
-        "freebsd" => OperatingSystem::FreeBSD,
-        "dragonfly" => OperatingSystem::DragonFlyBSD,
-        "netbsd" => OperatingSystem::NetBSD,
-        "openbsd" => OperatingSystem::OpenBSD,
-        "solaris" => OperatingSystem::Solaris,
-        "macos" => OperatingSystem::MacOS,
-        "windows" => OperatingSystem::Windows,
-        _ => OperatingSystem::Unknown,
+#[derive(Debug, PartialEq)]
+pub enum OperatingSystem {
+    Linux,
+    Android,
+    FreeBSD,
+    DragonFlyBSD,
+    NetBSD,
+    OpenBSD,
+    Solaris,
+    MacOS,
+    Windows,
+    Unknown,
+}
+
+#[derive(Debug, PartialEq)]
+pub enum Architecture {
+    X86,
+    X86_64,
+    Arm,
+    Aarch64,
+    Loongarch64,
+    M68k,
+    Csky,
+    Mips,
+    Mips64,
+    Powerpc,
+    Powerpc64,
+    Riscv64,
+    S390x,
+    Sparc64,
+    Unknown,
+}
+
+pub trait LinuxSystem {
+    fn get_distro(self) -> String;
+    fn get_linux_version(self) -> String;
+    fn is_subsystem_env(self) -> bool;
+    fn cpuinfo_cores(self) -> u32;
+    fn cpuinfo_model(self) -> String;
+}
+
+pub trait WindowsSystem {
+    fn get_edition(self) -> String;
+}
+
+pub trait CrossPlatform {
+    fn get_os(self) -> OperatingSystem;
+    fn get_arch(self) -> Architecture;
+}
+
+pub trait Parser {
+    fn select(path: &'static str, env_var: &'static str, elem: char) -> String;
+}
+
+impl Parser for String {
+    fn select(path: &'static str, env_var: &'static str, elem: char) -> String {
+        let contents = fs::read_to_string(path).expect("Failed to read file");
+        
+        let capture = contents
+        .lines()
+        .find(|line| line.starts_with(env_var))
+        .expect("Failed to find the specified environment variable")
+        .split(elem)
+        .nth(1)
+        .expect("Failed to parse environment variable")
+        .trim_matches('"')
+        .to_string();
+    capture
+}
+}
+
+impl LinuxSystem for Environment {
+    fn get_distro(self) -> String {
+        String::select("/etc/os-release", "NAME", '=')
+    }
+
+    fn get_linux_version(self) -> String {
+        String::select("/etc/os-release", "VERSION_ID", '=')
+    }
+    
+    fn is_subsystem_env(self) -> bool {
+        Path::new("/proc/sys/fs/binfmt_misc/WSLInterop").exists()
+    }
+
+    fn cpuinfo_cores(self) -> u32 {
+        String::select("/proc/cpuinfo", "cpu cores", ':')
+            .trim()
+            .parse::<u32>()
+            .expect("Failed to parse String to unsigned int")
+    }
+
+    fn cpuinfo_model(self) -> String {
+        String::select("/proc/cpuinfo", "model name", ':')
+            .trim()
+            .to_string()
+    }
+}
+
+impl WindowsSystem for Environment {
+    fn get_edition(self) -> String {
+        let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
+        let subkey = hklm
+            .open_subkey("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion")
+            .expect("Failed to open subkey");
+        
+        let edition = subkey
+            .get_value::<String, _>("EditionID")
+            .expect("Failed to get value");
+        edition
+    }
+}
+
+impl CrossPlatform for Environment {
+    fn get_os(self) -> OperatingSystem {
+        match std::env::consts::OS {
+            "linux" => OperatingSystem::Linux,
+            "android" => OperatingSystem::Android,
+            "freebsd" => OperatingSystem::FreeBSD,
+            "dragonfly" => OperatingSystem::DragonFlyBSD,
+            "netbsd" => OperatingSystem::NetBSD,
+            "openbsd" => OperatingSystem::OpenBSD,
+            "solaris" => OperatingSystem::Solaris,
+            "macos" => OperatingSystem::MacOS,
+            "windows" => OperatingSystem::Windows,
+            _ => OperatingSystem::Unknown,
+        }
+    }
+
+    fn get_arch(self) -> Architecture {
+        match std::env::consts::ARCH {
+            "x86" => Architecture::X86,
+            "x86_64" => Architecture::X86_64,
+            "arm" => Architecture::Arm,
+            "aarch64" => Architecture::Aarch64,
+            "loongarch64" => Architecture::Loongarch64,
+            "m68k" => Architecture::M68k,
+            "csky" => Architecture::Csky,
+            "mips" => Architecture::Mips,
+            "mips64" => Architecture::Mips64,
+            "powerpc" => Architecture::Powerpc,
+            "powerpc64" => Architecture::Powerpc64,
+            "riscv64" => Architecture::Riscv64,
+            "s390x" => Architecture::S390x,
+            "sparc64" => Architecture::Sparc64,
+            _ => Architecture::Unknown,
+        }
+    }
+}
+
+// impl_display: Implements the Display trait for OperatingSystem and Architecture
+macro_rules! impl_display {
+    ($type:ident) => {
+        impl Display for $type {
+            fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+                write!(f, "{:?}", self)
+            }
+        }
     };
-    os
 }
 
-/// Returns the architecture of the host operating system; matches against `std::env::consts::ARCH`
-pub fn detect_arch() -> Architecture {
-    let arch = match SYS_META[ARCH_ as usize] {
-        "x86" => Architecture::X86,
-        "x86_64" => Architecture::X86_64,
-        "arm" => Architecture::Arm,
-        "aarch64" => Architecture::Aarch64,
-        "loongarch64" => Architecture::Loongarch64,
-        "m68k" => Architecture::M68k,
-        "csky" => Architecture::Csky,
-        "mips" => Architecture::Mips,
-        "mips64" => Architecture::Mips64,
-        "powerpc" => Architecture::Powerpc,
-        "powerpc64" => Architecture::Powerpc64,
-        "riscv64" => Architecture::Riscv64,
-        "s390x" => Architecture::S390x,
-        "sparc64" => Architecture::Sparc64,
-        _ => Architecture::Unknown,
-    };
-    arch
-}
-
-/// Returns the CPU core count via `/proc/cpuinfo`
-pub fn cpuinfo_cores() -> u32 {
-    String::select("/proc/cpuinfo", "cpu cores", ':')
-        .trim()
-        .parse::<u32>()
-        .expect("Failed to parse String to unsigned int")
-}
-
-/// Returns the CPU model name via `/proc/cpuinfo`
-pub fn cpuinfo_model() -> String {
-    String::select("/proc/cpuinfo", "model name", ':')
-        .trim()
-        .to_string()
-}
+impl_display!(OperatingSystem);
+impl_display!(Architecture);
 
 #[cfg(test)]
 mod tests {
@@ -72,33 +176,62 @@ mod tests {
     // Why? Testing for the correct behavior, not necessarily the value...
     // i.e., if the test fails on your machine, it is not inherently a bug.
     // To prevent unnecessary Tickets, read the error message beforehand.
-    use super::*;
+    use super::*;     
 
-    // Generic test function, keeps tests DRY
-    fn test_fn<T: PartialEq + std::fmt::Debug + std::fmt::Display>(f: fn() -> T, expected: T) {
-        assert_eq!(f(), expected);
-        println!("Result: {}", f());
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn test_get_distro() {
+        let distro = Environment.get_distro();
+        assert_eq!(distro, "Fedora Linux");
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn test_get_linux_version() {
+        let version = Environment.get_linux_version();
+        assert_eq!(version, "39");
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn test_is_subsystem_env() {
+        let is_subsystem = Environment.is_subsystem_env();
+        assert_eq!(is_subsystem, false);
     }
 
     #[cfg(target_os = "linux")]
     #[test]
     fn test_cpuinfo_cores() {
-        test_fn(cpuinfo_cores, 8);
+        let cores = Environment.cpuinfo_cores();
+        assert_eq!(cores, 8);
     }
 
     #[cfg(target_os = "linux")]
     #[test]
     fn test_cpuinfo_model() {
-        test_fn(cpu_model, "AMD Ryzen 7 5700X 8-Core Processor".to_string());
+        let model = Environment.cpuinfo_model();
+        assert_eq!(model, "Ryzen 7 5700x 8-Core Processor");
+    }
+
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn test_get_edition() {
+        let edition = Environment.get_edition();
+        assert_eq!(edition, "Professional");
+        println!("Edition: {}", edition);
     }
 
     #[test]
-    fn test_detect_os() {
-        test_fn(detect_os, OperatingSystem::Windows);
+    fn test_get_os() {
+        let os = Environment.get_os();
+        assert_eq!(os, OperatingSystem::Windows);
+        println!("Operating System: {}", os);
     }
 
     #[test]
-    fn test_detect_arch() {
-        test_fn(detect_arch, Architecture::X86_64);
-    }   
+    fn test_get_arch() {
+        let arch = Environment.get_arch();
+        assert_eq!(arch, Architecture::X86_64);
+        println!("Architecture: {}", arch);
+    }
 }
