@@ -1,14 +1,20 @@
 use core::fmt::{Display, Formatter, Result};
+use std::path::Path;
 use std::fs;
 
-pub struct LinuxSystem {
-    pub distro: String,
-    pub version_id: String,
+#[cfg(target_os = "windows")]
+use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
+
+pub struct System;
+
+pub trait LinuxSystem {
+    fn get_distro(self) -> String;
+    fn get_linux_version(self) -> String;
+    fn is_subsystem_env(self) -> bool;
 }
 
-pub struct WindowsSystem {
-    pub edition: String,
-    pub version: String,
+pub trait WindowsSystem {
+    fn get_edition(self) -> String;
 }
 
 #[derive(Debug, PartialEq)]
@@ -65,43 +71,31 @@ impl Parser for String {
     }
 }
 
-pub trait PartialProfile {
-    fn partial(self) -> Self;
-    fn get_os_variant(self) -> String;
-    fn get_version(self) -> String;
-}
-
-impl PartialProfile for LinuxSystem {
-    fn partial(self) -> Self {
-        Self {
-            distro: self.distro,
-            version_id: self.version_id,
-        }
+impl LinuxSystem for System {
+    fn get_distro(self) -> String {
+        String::select("/etc/os-release", "NAME", '=')
     }
 
-    fn get_os_variant(self) -> String {
-        self.distro
+    fn get_linux_version(self) -> String {
+        String::select("/etc/os-release", "VERSION_ID", '=')
     }
-
-    fn get_version(self) -> String {
-        self.version_id
+    
+    fn is_subsystem_env(self) -> bool {
+        Path::new("/proc/sys/fs/binfmt_misc/WSLInterop").exists()
     }
 }
 
-impl PartialProfile for WindowsSystem {
-    fn partial(self) -> Self {
-        Self {
-            edition: self.edition,
-            version: self.version,
-        }
-    }
-
-    fn get_os_variant(self) -> String {
-        self.edition
-    }
-
-    fn get_version(self) -> String {
-        self.version
+impl WindowsSystem for System {
+    fn get_edition(self) -> String {
+        let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
+        let subkey = hklm
+            .open_subkey("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion")
+            .expect("Failed to open subkey");
+        
+        let edition = subkey
+            .get_value::<String, _>("EditionID")
+            .expect("Failed to get value");
+        edition
     }
 }
 
