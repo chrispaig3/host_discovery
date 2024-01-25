@@ -8,8 +8,8 @@
 use host_discovery::{Environment, WindowsSystem, CrossPlatform};
 
 fn main() {
-    let edition = Environment.get_edition();
     let os = Environment.get_os();
+    let edition = Environment.get_edition();
     let arch = Environment.get_arch();
 
     println!("OS: {}\n Edition: {}\nArch: {}", os, edition, arch);
