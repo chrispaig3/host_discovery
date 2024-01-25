@@ -1,6 +1,6 @@
 use core::fmt::{Display, Formatter, Result};
-use std::path::Path;
 use std::fs;
+use std::path::Path;
 
 #[cfg(target_os = "windows")]
 use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
@@ -63,7 +63,7 @@ pub trait Parser {
 impl Parser for String {
     fn select(path: &'static str, env_var: &'static str, elem: char) -> String {
         let contents = fs::read_to_string(path).expect("Failed to read file");
-        
+
         let capture = contents
             .lines()
             .find(|line| line.starts_with(env_var))
@@ -104,6 +104,7 @@ impl LinuxSystem for Environment {
     }
 }
 
+#[cfg(target_os = "windows")]
 impl WindowsSystem for Environment {
     /// get_edition: Returns the edition of Windows
     fn get_edition(self) -> String {
@@ -111,7 +112,7 @@ impl WindowsSystem for Environment {
         let subkey = hklm
             .open_subkey("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion")
             .expect("Failed to open subkey");
-        
+
         let edition = subkey
             .get_value::<String, _>("EditionID")
             .expect("Failed to get value");
@@ -178,7 +179,7 @@ mod tests {
     // Why? Testing for the correct behavior, not necessarily the value...
     // i.e., if the test fails on your machine, it is not inherently a bug.
     // To prevent unnecessary Tickets, read the error message beforehand.
-    use super::*;     
+    use super::*;
 
     #[cfg(target_os = "linux")]
     #[test]
@@ -205,7 +206,7 @@ mod tests {
     #[test]
     fn test_cpuinfo_model() {
         let model = Environment.cpuinfo_model();
-        assert_eq!(model, "Ryzen 7 5700x 8-Core Processor");
+        assert_eq!(model, "AMD Ryzen 7 5700X 8-Core Processor");
     }
 
     #[cfg(target_os = "windows")]
