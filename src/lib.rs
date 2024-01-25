@@ -42,7 +42,7 @@ pub enum Architecture {
 
 pub trait LinuxSystem {
     fn get_distro(self) -> String;
-    fn get_linux_version(self) -> String;
+    fn get_version(self) -> String;
     fn is_subsystem_env(self) -> bool;
     fn cpuinfo_cores(self) -> u32;
     fn cpuinfo_model(self) -> String;
@@ -79,18 +79,22 @@ impl Parser for String {
 }
 
 impl LinuxSystem for Environment {
+    /// get_distro: Returns the name of the Linux distribution
     fn get_distro(self) -> String {
         String::select("/etc/os-release", "NAME", '=')
     }
 
-    fn get_linux_version(self) -> String {
+    /// get_version returns the version of the Linux distribution
+    fn get_version(self) -> String {
         String::select("/etc/os-release", "VERSION_ID", '=')
     }
     
+    /// is_subsystem_env: Returns true if the environment is a Windows Subsystem for Linux
     fn is_subsystem_env(self) -> bool {
         Path::new("/proc/sys/fs/binfmt_misc/WSLInterop").exists()
     }
 
+    /// cpuinfo_cores: Returns the number of cores on the CPU
     fn cpuinfo_cores(self) -> u32 {
         String::select("/proc/cpuinfo", "cpu cores", ':')
             .trim()
@@ -98,6 +102,7 @@ impl LinuxSystem for Environment {
             .expect("Failed to parse String to unsigned int")
     }
 
+    /// cpuinfo_model: Returns the model of the CPU
     fn cpuinfo_model(self) -> String {
         String::select("/proc/cpuinfo", "model name", ':')
             .trim()
@@ -106,6 +111,7 @@ impl LinuxSystem for Environment {
 }
 
 impl WindowsSystem for Environment {
+    /// get_edition: Returns the edition of Windows
     fn get_edition(self) -> String {
         let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
         let subkey = hklm
@@ -120,6 +126,7 @@ impl WindowsSystem for Environment {
 }
 
 impl CrossPlatform for Environment {
+    /// get_os: Returns the Operating System
     fn get_os(self) -> OperatingSystem {
         match std::env::consts::OS {
             "linux" => OperatingSystem::Linux,
@@ -135,6 +142,7 @@ impl CrossPlatform for Environment {
         }
     }
 
+    /// get_arch: Returns the Architecture
     fn get_arch(self) -> Architecture {
         match std::env::consts::ARCH {
             "x86" => Architecture::X86,
