@@ -5,7 +5,7 @@
 - Basic Usage
 
 ```rust
-use host_discovery::{Environment, WindowsSystem, CrossPlatform};
+use host_discovery::{Environment, CrossPlatform};
 
 fn main() {
     let env = Environment;
