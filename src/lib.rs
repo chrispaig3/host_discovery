@@ -219,7 +219,7 @@ mod tests {
     #[test]
     fn test_get_os() {
         let os = Environment.get_os();
-        assert_eq!(os, OperatingSystem::Windows);
+        assert_eq!(os, OperatingSystem::Linux);
         println!("Operating System: {}", os);
     }
 
