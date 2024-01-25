@@ -30,6 +30,9 @@ fn main() {
 
   - ***fn*** `get_edition` Returns a String containing the Windows edition via the registry
 
+> ***trait*** `Parser`
+
+- ***fn*** `String::select`
 ### Add to your project
 ```sh 
     cargo add host_discovery
