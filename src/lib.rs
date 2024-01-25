@@ -42,7 +42,6 @@ pub enum Architecture {
 
 pub trait LinuxSystem {
     fn get_distro(self) -> String;
-    fn get_version(self) -> String;
     fn is_subsystem_env(self) -> bool;
     fn cpuinfo_cores(self) -> u32;
     fn cpuinfo_model(self) -> String;
@@ -84,11 +83,6 @@ impl LinuxSystem for Environment {
         String::select("/etc/os-release", "NAME", '=')
     }
 
-    /// get_version returns the version of the Linux distribution
-    fn get_version(self) -> String {
-        String::select("/etc/os-release", "VERSION_ID", '=')
-    }
-    
     /// is_subsystem_env: Returns true if the environment is a Windows Subsystem for Linux
     fn is_subsystem_env(self) -> bool {
         Path::new("/proc/sys/fs/binfmt_misc/WSLInterop").exists()
@@ -191,13 +185,6 @@ mod tests {
     fn test_get_distro() {
         let distro = Environment.get_distro();
         assert_eq!(distro, "Fedora Linux");
-    }
-
-    #[cfg(target_os = "linux")]
-    #[test]
-    fn test_get_linux_version() {
-        let version = Environment.get_linux_version();
-        assert_eq!(version, "39");
     }
 
     #[cfg(target_os = "linux")]
