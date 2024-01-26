@@ -64,12 +64,12 @@ pub trait Parser {
 
 impl Parser for String {
     /// select: Can be useful for extracting snippets of text from structured files
-    fn select(path: &'static str, env_var: &'static str, elem: char) -> String {
+    fn select(path: &'static str, text: &'static str, elem: char) -> String {
         let contents = fs::read_to_string(path).expect("Failed to read file");
 
         let capture = contents
             .lines()
-            .find(|line| line.starts_with(env_var))
+            .find(|line| line.starts_with(text))
             .expect("Failed to find the specified environment variable")
             .split(elem)
             .nth(1)
