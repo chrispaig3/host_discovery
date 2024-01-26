@@ -5,13 +5,13 @@
 - Basic Usage
 
 ```rust
-use host_discovery::{Environment, CrossPlatform};
+use host_discovery::{Environment, CrossPlatform, LinuxSystem};
 
 fn main() {
-    let env = Environment;
-    let os = env.get_os();
-    let arch = env.get_arch();
-    println!("OS: {}, Arch: {}", os, arch);
+    let os = Environment.get_os();
+    let distro = Environment.get_distro();
+    let arch = Environment.get_arch();
+    println!("OS: {}, Linux Distribution: {}, Arch: {}", os, distro, arch);
 }
 ```
 
