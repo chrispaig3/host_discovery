@@ -58,19 +58,18 @@ pub trait CrossPlatform {
     fn get_arch(self) -> Architecture;
 }
 
-pub trait Parser {
+trait Parser {
     fn select(path: &'static str, text: &'static str, elem: char) -> String;
 }
 
 impl Parser for String {
-    /// select: Can be useful for parsing snippets of text from structured files
     fn select(path: &'static str, text: &'static str, elem: char) -> String {
         let contents = fs::read_to_string(path).expect("Failed to read file");
 
         let capture = contents
             .lines()
             .find(|line| line.starts_with(text))
-            .expect("Failed to find the specified environment variable")
+            .expect("Failed to find the specified text")
             .split(elem)
             .nth(1)
             .expect("Failed to parse environment variable")
