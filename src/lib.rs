@@ -5,6 +5,8 @@ use std::path::Path;
 #[cfg(target_os = "windows")]
 use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
 
+mod impl_display;
+
 pub struct Environment;
 
 #[derive(Debug, PartialEq)]
@@ -61,12 +63,13 @@ pub trait Parser {
 }
 
 impl Parser for String {
-    fn select(path: &'static str, env_var: &'static str, elem: char) -> String {
+    /// select: Can be useful for extracting snippets of text from structured files
+    fn select(path: &'static str, text: &'static str, elem: char) -> String {
         let contents = fs::read_to_string(path).expect("Failed to read file");
 
         let capture = contents
             .lines()
-            .find(|line| line.starts_with(env_var))
+            .find(|line| line.starts_with(text))
             .expect("Failed to find the specified environment variable")
             .split(elem)
             .nth(1)
@@ -157,17 +160,6 @@ impl CrossPlatform for Environment {
             _ => Architecture::Unknown,
         }
     }
-}
-
-// impl_display: Implements the Display trait for OperatingSystem and Architecture
-macro_rules! impl_display {
-    ($type:ident) => {
-        impl Display for $type {
-            fn fmt(&self, f: &mut Formatter<'_>) -> Result {
-                write!(f, "{:?}", self)
-            }
-        }
-    };
 }
 
 impl_display!(OperatingSystem);
