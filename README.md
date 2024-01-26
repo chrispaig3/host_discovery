@@ -32,7 +32,7 @@ fn main() {
 
 > ***trait*** `Parser`
 
-- ***fn*** `String::select` Can be useful for parsing text from files     
+- ***fn*** `String::select` Can be useful for parsing snippets of text from structured files     
 ### Add to your project
 ```sh 
     cargo add host_discovery
