@@ -63,7 +63,7 @@ pub trait Parser {
 }
 
 impl Parser for String {
-    /// select: Can be useful for extracting snippets of text from structured files
+    /// select: Can be useful for parsing snippets of text from structured files
     fn select(path: &'static str, text: &'static str, elem: char) -> String {
         let contents = fs::read_to_string(path).expect("Failed to read file");
 
