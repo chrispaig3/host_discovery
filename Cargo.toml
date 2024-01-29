@@ -1,9 +1,11 @@
 [package]
 authors = ["Chris - V0idMatr1x"]
 name = "host_discovery"
+license = "MIT"
 license-file = "LICENSE"
+documentation = "https://docs.rs/host_discovery/latest/host_discovery/"
 description = "A simple Rust crate for host discovery"
-version = "1.6.0"
+version = "1.6.1"
 repository = "https://github.com/v0idmatr1x/host_discovery"
 edition = "2021"
 
