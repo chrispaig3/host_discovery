@@ -1,5 +1,5 @@
 [package]
-authors = ["Chris - V0idMatr1x"]
+authors = ["Chris Paige"]
 name = "host_discovery"
 license = "MIT"
 documentation = "https://docs.rs/host_discovery"
