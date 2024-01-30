@@ -92,6 +92,7 @@ impl LinuxSystem for Environment {
     fn get_distro(self) -> String {
         String::select("/etc/os-release", "NAME", '=')
     }
+
     /// get_platform_id: Returns the the platform id
     /// fn get_platform_id(self) -> String;
     fn get_platform_id(self) -> String {
