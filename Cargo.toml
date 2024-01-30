@@ -4,12 +4,12 @@ name = "host_discovery"
 license = "MIT"
 documentation = "https://docs.rs/host_discovery"
 description = "A simple Rust crate for host discovery"
-version = "1.6.3"
+version = "1.6.4"
 repository = "https://github.com/v0idmatr1x/host_discovery"
 edition = "2021"
 
 [features]
-windows-system = ["dep:winreg"]
+windows = ["dep:winreg"]
 
 [target.'cfg(windows)'.dependencies]
 winreg = { version = "0.52.0", optional = true }
