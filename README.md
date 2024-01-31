@@ -35,6 +35,14 @@ fn main() {
     cargo add host_discovery
 ```
 
+> or
+
+```sh
+# For Windows specific features
+
+  cargo add host_discovery --features windows
+```
+
 - Planned Features
   - GPU enumeration & extended device detection (CPU, etc.).
 
