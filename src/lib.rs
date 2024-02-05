@@ -81,7 +81,6 @@ impl Parser for String {
 }
 
 // Serves as a constructor for the Environment Unit Structure
-#[allow(dead_code)]
 impl Environment {
     pub fn new() -> Self {
         Self {}
