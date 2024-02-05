@@ -80,13 +80,6 @@ impl Parser for String {
     }
 }
 
-// Serves as a constructor for the Environment Unit Structure
-impl Environment {
-    pub fn new() -> Self {
-        Self {}
-    }
-}
-
 impl LinuxSystem for Environment {
     /// is_subsystem_env: Returns true if the environment is a Windows Subsystem for Linux
     /// fn is_subsystem_env(self) -> bool;
@@ -196,16 +189,14 @@ mod tests {
     #[cfg(target_os = "linux")]
     #[test]
     fn test_get_distro() {
-        let env = Environment::new();
-        let distro = env.get_distro();
+        let distro = Environment.get_distro();
         assert_eq!(distro, "Fedora Linux");
     }
 
     #[cfg(target_os = "linux")]
     #[test]
     fn test_get_platform_id() {
-        let env = Environment::new();
-        let platform_id = env.get_platform_id();
+        let platform_id = Environment.get_platform_id();
         assert_eq!(platform_id, "platform:f39");
         println!("{}", platform_id);
     }
@@ -213,46 +204,40 @@ mod tests {
     #[cfg(target_os = "linux")]
     #[test]
     fn test_is_subsystem_env() {
-        let env = Environment::new();
-        let is_subsystem = env.is_subsystem_env();
+        let is_subsystem = Environment.is_subsystem_env();
         assert_eq!(is_subsystem, false);
     }
 
     #[cfg(target_os = "linux")]
     #[test]
     fn test_cpuinfo_cores() {
-        let env = Environment::new();
-        let cores = env.cpuinfo_cores();
+        let cores = Environment.cpuinfo_cores();
         assert_eq!(cores, 8);
     }
 
     #[cfg(target_os = "linux")]
     #[test]
     fn test_cpuinfo_model() {
-        let env = Environment::new();
-        let model = env.cpuinfo_model();
+        let model = Environment.cpuinfo_model();
         assert_eq!(model, "AMD Ryzen 7 5700X 8-Core Processor");
     }
 
     #[cfg(target_os = "windows")]
     #[test]
     fn test_get_edition() {
-        let env = Environment::new();
-        let edition = env.get_edition();
+        let edition = Environment.get_edition();
         assert_eq!(edition, "Professional");
     }
 
     #[test]
     fn test_get_os() {
-        let env = Environment::new();
-        let os = env.get_os();
+        let os = Environment.get_os();
         assert_eq!(os, OperatingSystem::Linux);
     }
 
     #[test]
     fn test_get_arch() {
-        let env = Environment::new();
-        let arch = env.get_arch();
+        let arch = Environment.get_arch();
         assert_eq!(arch, Architecture::X86_64);
     }
 }
