@@ -8,9 +8,10 @@
 use host_discovery::{Environment, CrossPlatform, LinuxSystem};
 
 fn main() {
-    let os = Environment.get_os();
-    let distro = Environment.get_distro();
-    let arch = Environment.get_arch();
+    let env = Environment::new();
+    let os = env.get_os();
+    let distro = env.get_distro();
+    let arch = env.get_arch();
     println!("OS: {}, Linux Distribution: {}, Arch: {}", os, distro, arch);
 }
 ```
