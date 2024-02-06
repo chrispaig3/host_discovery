@@ -43,20 +43,20 @@ pub enum Architecture {
 }
 
 pub trait LinuxSystem {
-    fn is_subsystem_env(self) -> bool;
-    fn get_distro(self) -> String;
-    fn get_platform_id(self) -> String;
-    fn cpuinfo_cores(self) -> u32;
-    fn cpuinfo_model(self) -> String;
+    fn is_subsystem_env(&self) -> bool;
+    fn get_distro(&self) -> String;
+    fn get_platform_id(&self) -> String;
+    fn cpuinfo_cores(&self) -> u32;
+    fn cpuinfo_model(&self) -> String;
 }
 
 pub trait WindowsSystem {
-    fn get_edition(self) -> String;
+    fn get_edition(&self) -> String;
 }
 
 pub trait CrossPlatform {
-    fn get_os(self) -> OperatingSystem;
-    fn get_arch(self) -> Architecture;
+    fn get_os(&self) -> OperatingSystem;
+    fn get_arch(&self) -> Architecture;
 }
 
 trait Parser {
@@ -80,28 +80,34 @@ impl Parser for String {
     }
 }
 
+impl Environment {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
+
 impl LinuxSystem for Environment {
     /// is_subsystem_env: Returns true if the environment is a Windows Subsystem for Linux
     /// fn is_subsystem_env(self) -> bool;
-    fn is_subsystem_env(self) -> bool {
+    fn is_subsystem_env(&self) -> bool {
         Path::new("/proc/sys/fs/binfmt_misc/WSLInterop").exists()
     }
 
     /// get_distro: Returns the name of the Linux distribution
     /// fn get_distro(self) -> String;
-    fn get_distro(self) -> String {
+    fn get_distro(&self) -> String {
         String::select("/etc/os-release", "NAME", '=')
     }
 
     /// get_platform_id: Returns the the platform id
     /// fn get_platform_id(self) -> String;
-    fn get_platform_id(self) -> String {
+    fn get_platform_id(&self) -> String {
         String::select("/etc/os-release", "PLATFORM_ID", '=')
     }
 
     /// cpuinfo_cores: Returns the number of cores on the CPU
     /// fn cpuinfo_cores(self) -> u32;
-    fn cpuinfo_cores(self) -> u32 {
+    fn cpuinfo_cores(&self) -> u32 {
         String::select("/proc/cpuinfo", "cpu cores", ':')
             .trim()
             .parse::<u32>()
@@ -110,7 +116,7 @@ impl LinuxSystem for Environment {
 
     /// cpuinfo_model: Returns the model of the CPU
     /// fn cpuinfo_model(self) -> String;
-    fn cpuinfo_model(self) -> String {
+    fn cpuinfo_model(&self) -> String {
         String::select("/proc/cpuinfo", "model name", ':')
             .trim()
             .to_string()
@@ -121,7 +127,7 @@ impl LinuxSystem for Environment {
 impl WindowsSystem for Environment {
     /// get_edition: Returns the edition of Windows
     /// fn get_edition(self) -> String;
-    fn get_edition(self) -> String {
+    fn get_edition(&self) -> String {
         let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
         let subkey = hklm
             .open_subkey("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion")
@@ -137,7 +143,7 @@ impl WindowsSystem for Environment {
 impl CrossPlatform for Environment {
     /// get_os: Returns the Operating System
     /// fn get_os(self) -> OperatingSystem;
-    fn get_os(self) -> OperatingSystem {
+    fn get_os(&self) -> OperatingSystem {
         match std::env::consts::OS {
             "linux" => OperatingSystem::Linux,
             "android" => OperatingSystem::Android,
@@ -154,7 +160,7 @@ impl CrossPlatform for Environment {
 
     /// get_arch: Returns the Architecture
     /// fn get_arch(self) -> Architecture;
-    fn get_arch(self) -> Architecture {
+    fn get_arch(&self) -> Architecture {
         match std::env::consts::ARCH {
             "x86" => Architecture::X86,
             "x86_64" => Architecture::X86_64,
