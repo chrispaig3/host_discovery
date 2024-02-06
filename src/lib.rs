@@ -204,7 +204,6 @@ mod tests {
     fn test_get_platform_id() {
         let platform_id = Environment.get_platform_id();
         assert_eq!(platform_id, "platform:f39");
-        println!("{}", platform_id);
     }
 
     #[cfg(target_os = "linux")]
