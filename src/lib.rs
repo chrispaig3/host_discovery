@@ -47,6 +47,7 @@ pub trait LinuxSystem {
     fn get_distro(&self) -> String;
     fn get_platform_id(&self) -> String;
     fn get_cpe_name(&self) -> String;
+    fn get_hostname(&self) -> String;
     fn cpuinfo_cores(&self) -> u32;
     fn cpuinfo_model(&self) -> String;
 }
@@ -110,6 +111,15 @@ impl LinuxSystem for Environment {
     /// fn get_platform(&self) -> String;
     fn get_cpe_name(&self) -> String {
         String::select("/etc/os-release", "CPE_NAME", '=')
+    }
+
+    /// get_hostname: Returns the hostname of the system
+    /// fn get_hostname(&self) -> String;
+    fn get_hostname(&self) -> String {
+        let hostname = fs::read_to_string("/etc/hostname")
+            .expect("Failed to retrieve hostname from /etc/hostname");
+
+        hostname.trim().to_string()
     }
 
     /// cpuinfo_cores: Returns the number of cores on the CPU
@@ -211,6 +221,13 @@ mod tests {
     fn test_get_cpe_name() {
         let cpe_name = Environment.get_cpe_name();
         assert_eq!(cpe_name, "cpe:/o:fedoraproject:fedora:39")
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn test_get_hostname() {
+        let hostname = Environment.get_hostname();
+        assert_eq!(hostname, "TheLab");
     }
 
     #[cfg(target_os = "linux")]
