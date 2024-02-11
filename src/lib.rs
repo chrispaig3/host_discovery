@@ -46,6 +46,7 @@ pub trait LinuxSystem {
     fn is_subsystem_env(&self) -> bool;
     fn get_distro(&self) -> String;
     fn get_platform_id(&self) -> String;
+    fn get_cpe_name(&self) -> String;
     fn cpuinfo_cores(&self) -> u32;
     fn cpuinfo_model(&self) -> String;
 }
@@ -99,10 +100,16 @@ impl LinuxSystem for Environment {
         String::select("/etc/os-release", "NAME", '=')
     }
 
-    /// get_platform_id: Returns the the platform id
+    /// get_platform_id: Returns the platform id
     /// fn get_platform_id(self) -> String;
     fn get_platform_id(&self) -> String {
         String::select("/etc/os-release", "PLATFORM_ID", '=')
+    }
+
+    /// get_cpe_name: Returns the Common Platform Enum Name
+    /// fn get_platform(&self) -> String;
+    fn get_cpe_name(&self) -> String {
+        String::select("/etc/os-release", "CPE_NAME", '=')
     }
 
     /// cpuinfo_cores: Returns the number of cores on the CPU
@@ -197,6 +204,13 @@ mod tests {
     fn test_get_distro() {
         let distro = Environment.get_distro();
         assert_eq!(distro, "Fedora Linux");
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn test_get_cpe_name() {
+        let cpe_name = Environment.get_cpe_name();
+        assert_eq!(cpe_name, "cpe:/o:fedoraproject:fedora:39")
     }
 
     #[cfg(target_os = "linux")]
