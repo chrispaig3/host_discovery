@@ -63,6 +63,7 @@ pub trait CrossPlatform {
 
 trait Parser {
     fn select(path: &'static str, text: &'static str, elem: char) -> String;
+    // fn find(path: &'static str, regex: &'static str) -> String;
 }
 
 impl Parser for String {
