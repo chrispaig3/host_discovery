@@ -118,7 +118,7 @@ impl LinuxSystem for Environment {
     /// fn get_hostname(&self) -> String;
     fn get_hostname(&self) -> String {
         let hostname = fs::read_to_string("/etc/hostname")
-            .expect("Failed to retrieve hostname from /etc/hostname");
+            .expect("Failed to retrieve hostname");
 
         hostname.trim().to_string()
     }
