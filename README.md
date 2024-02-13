@@ -47,3 +47,4 @@ fn main() {
 - Planned Features
   - GPU enumeration & extended device detection (CPU, etc.).
 
+- ***If you experience any bugs, please don't hesitate to create an issue; so they may be fixed in a timely fashion.***
