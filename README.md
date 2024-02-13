@@ -44,10 +44,10 @@ fn main() {
   cargo add host_discovery --features windows
 ```
 
-> Planned
+> Planned Features
   
 - GPU enumeration & extended device detection (CPU, etc.).
-- FreeBSD & MacOS support + more Windows features
+- FreeBSD & MacOS support
 
 > ***If you experience any bugs, please don't hesitate to create an issue; so they may be fixed in a timely fashion.***
 
