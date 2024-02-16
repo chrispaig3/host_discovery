@@ -59,6 +59,7 @@ pub trait WindowsSystem {
 pub trait CrossPlatform {
     fn get_os(&self) -> OperatingSystem;
     fn get_arch(&self) -> Architecture;
+    fn get_public_ip(&self) -> String;
 }
 
 pub trait Parser {
@@ -69,7 +70,6 @@ pub trait Parser {
 impl Parser for String {
     /// select: Returns the first match of the specified text
     /// takes a path, a text to search for, and an element to split the line
-    /// fn select(path: &'static str, text: &'static str, elem: char) -> String;
     fn select(path: &'static str, text: &'static str, elem: char) -> String {
         let contents = fs::read_to_string(path).expect("Failed to read file");
 
@@ -87,7 +87,6 @@ impl Parser for String {
 
     /// find: Returns the first match of the specified regex (Fuzzy Search)
     /// takes a path and a regular expression to search for
-    /// fn find(path: &'static str, regex: &'static str) -> String;
     fn find(path: &'static str, regex: &'static str) -> String {
         let contents = fs::read_to_string(path).expect("Failed to read file");
 
@@ -217,6 +216,15 @@ impl CrossPlatform for Environment {
             _ => Architecture::Unknown,
         }
     }
+
+    /// get_public_ip: Returns the public IP address of the host machine
+    fn get_public_ip(&self) -> String {
+        let ip = reqwest::blocking::get("https://api.ipify.org")
+            .expect("Failed to get public IP")
+            .text()
+            .expect("Failed to parse response");
+        ip        
+    }
 }
 
 impl_display!(OperatingSystem);
@@ -296,6 +304,12 @@ mod tests {
     fn test_get_arch() {
         let arch = Environment.get_arch();
         assert_eq!(arch, Architecture::X86_64);
+    }
+
+    #[test]
+    fn test_get_public_ip() {
+        let ip = Environment.get_public_ip();
+        assert_eq!(ip, "");
     }
 
     #[test]
