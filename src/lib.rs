@@ -312,12 +312,14 @@ mod tests {
         assert_eq!(ip, "");
     }
 
+    #[cfg(target_os = "linux")]
     #[test]
     fn test_select() {
         let capture = String::select("/etc/os-release", "VERSION_ID", '=');
         assert_eq!(capture, "22.04");
     }
 
+    #[cfg(target_os = "linux")]
     #[test]
     fn test_find() {
         let capture = String::find("/etc/os-release", r#"VERSION_ID="(.*)""#);
