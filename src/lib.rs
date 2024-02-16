@@ -61,12 +61,15 @@ pub trait CrossPlatform {
     fn get_arch(&self) -> Architecture;
 }
 
-trait Parser {
+pub trait Parser {
     fn select(path: &'static str, text: &'static str, elem: char) -> String;
-    // fn find(path: &'static str, regex: &'static str) -> String;
+    fn find(path: &'static str, regex: &'static str) -> String;
 }
 
 impl Parser for String {
+    /// select: Returns the first match of the specified text
+    /// takes a path, a text to search for, and an element to split the line
+    /// fn select(path: &'static str, text: &'static str, elem: char) -> String;
     fn select(path: &'static str, text: &'static str, elem: char) -> String {
         let contents = fs::read_to_string(path).expect("Failed to read file");
 
@@ -78,6 +81,23 @@ impl Parser for String {
             .nth(1)
             .expect("Failed to parse environment variable")
             .trim_matches('"')
+            .to_string();
+        capture
+    }
+
+    /// find: Returns the first match of the specified regex (Fuzzy Search)
+    /// takes a path and a regular expression to search for
+    /// fn find(path: &'static str, regex: &'static str) -> String;
+    fn find(path: &'static str, regex: &'static str) -> String {
+        let contents = fs::read_to_string(path).expect("Failed to read file");
+
+        let re = regex::Regex::new(regex).expect("Failed to create regex");
+        let capture = re
+            .captures(&contents)
+            .expect("Failed to find the specified text")
+            .get(1)
+            .expect("Failed to match the specified text")
+            .as_str()
             .to_string();
         capture
     }
@@ -276,5 +296,17 @@ mod tests {
     fn test_get_arch() {
         let arch = Environment.get_arch();
         assert_eq!(arch, Architecture::X86_64);
+    }
+
+    #[test]
+    fn test_select() {
+        let capture = String::select("/etc/os-release", "VERSION_ID", '=');
+        assert_eq!(capture, "22.04");
+    }
+
+    #[test]
+    fn test_find() {
+        let capture = String::find("/etc/os-release", r#"VERSION_ID="(.*)""#);
+        assert_eq!(capture, "22.04");
     }
 }

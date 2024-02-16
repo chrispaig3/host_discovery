@@ -13,3 +13,6 @@ windows = ["dep:winreg"]
 
 [target.'cfg(windows)'.dependencies]
 winreg = { version = "0.52.0", optional = true }
+
+[dependencies]
+regex = "1.10.3"
