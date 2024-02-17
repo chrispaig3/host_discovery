@@ -62,14 +62,12 @@ pub trait CrossPlatform {
     fn get_public_ip(&self) -> String;
 }
 
-pub trait Parser {
+trait Parser {
     fn select(path: &'static str, text: &'static str, elem: char) -> String;
-    fn find(path: &'static str, regex: &'static str) -> String;
 }
 
 impl Parser for String {
-    /// select: Returns the first match of the specified text
-    /// takes a path, a text to search for, and an element to split the line
+    // select: takes a path, some text to match against, and a character (element) to split the line by
     fn select(path: &'static str, text: &'static str, elem: char) -> String {
         let contents = fs::read_to_string(path).expect("Failed to read file");
 
@@ -81,22 +79,6 @@ impl Parser for String {
             .nth(1)
             .expect("Failed to parse environment variable")
             .trim_matches('"')
-            .to_string();
-        capture
-    }
-
-    /// find: Returns the first match of the specified regex (Fuzzy Search)
-    /// takes a path and a regular expression to search for
-    fn find(path: &'static str, regex: &'static str) -> String {
-        let contents = fs::read_to_string(path).expect("Failed to read file");
-
-        let re = regex::Regex::new(regex).expect("Failed to create regex");
-        let capture = re
-            .captures(&contents)
-            .expect("Failed to find the specified text")
-            .get(1)
-            .expect("Failed to match the specified text")
-            .as_str()
             .to_string();
         capture
     }
@@ -136,8 +118,7 @@ impl LinuxSystem for Environment {
     /// get_hostname: Returns the hostname of the system
     /// fn get_hostname(&self) -> String;
     fn get_hostname(&self) -> String {
-        let hostname = fs::read_to_string("/etc/hostname")
-            .expect("Failed to retrieve hostname");
+        let hostname = fs::read_to_string("/etc/hostname").expect("Failed to retrieve hostname");
 
         hostname.trim().to_string()
     }
@@ -223,7 +204,7 @@ impl CrossPlatform for Environment {
             .expect("Failed to get public IP")
             .text()
             .expect("Failed to parse response");
-        ip        
+        ip
     }
 }
 
@@ -316,13 +297,6 @@ mod tests {
     #[test]
     fn test_select() {
         let capture = String::select("/etc/os-release", "VERSION_ID", '=');
-        assert_eq!(capture, "22.04");
-    }
-
-    #[cfg(target_os = "linux")]
-    #[test]
-    fn test_find() {
-        let capture = String::find("/etc/os-release", r#"VERSION_ID="(.*)""#);
-        assert_eq!(capture, "22.04");
+        assert_eq!(capture, "39");
     }
 }
