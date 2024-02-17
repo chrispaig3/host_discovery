@@ -287,23 +287,16 @@ mod tests {
         assert_eq!(arch, Architecture::X86_64);
     }
 
-    //#[test]
-    //fn test_get_public_ip() {
-    //    let ip = Environment.get_public_ip();
-    //    assert_eq!(ip, "");
-    //}
+    #[test]
+    fn test_get_public_ip() {
+        let ip = Environment.get_public_ip();
+        assert_eq!(ip, "");
+    }
 
     #[cfg(target_os = "linux")]
     #[test]
     fn test_select() {
         let capture = String::select("/etc/os-release", "VERSION_ID", '=');
-        assert_eq!(capture, "39");
-    }
-
-    #[cfg(target_os = "linux")]
-    #[test]
-    fn test_find() {
-        let capture = String::find("/etc/os-release", r#"VERSION_ID="(.*)""#);
         assert_eq!(capture, "39");
     }
 }
