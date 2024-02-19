@@ -21,12 +21,14 @@ fn main() {
   
   - ***fn*** `get_os`: Returns a variant of OperatingSystem
   - ***fn*** `get_arch`: Returns a variant of Architecture
-  - ***fn*** `get_public_ip`: Returns the public ip
+  - ***fn*** `get_public_ip`: Returns String containing the public ip address
 > ***trait*** `LinuxSystem`
 
   - ***fn*** `cpuinfo_cores`: Returns a u32 representing the CPU core count
   - ***fn*** `cpuinfo_model`: Returns a String containing the name of the CPU model
   - ***fn*** `get_distro`: Returns a String containing the name of the running Linux distribution
+  - ***fn*** `get_cpe_name`: Returns a String containing the common platform enum
+  - ***fn*** `get_hostname`: Returns a string containing the hostname of the machine
   - ***fn*** `is_subsystem_env`: Returns a boolean based on whether the Linux environment is a Windows subsystem
 > ***trait*** `WindowsSystem`
 
