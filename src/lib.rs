@@ -95,31 +95,26 @@ impl Environment {
 
 impl LinuxSystem for Environment {
     /// is_subsystem_env: Returns true if the environment is a Windows Subsystem for Linux
-    /// fn is_subsystem_env(self) -> bool;
     fn is_subsystem_env(&self) -> bool {
         Path::new("/proc/sys/fs/binfmt_misc/WSLInterop").exists()
     }
 
     /// get_distro: Returns the name of the Linux distribution
-    /// fn get_distro(self) -> String;
     fn get_distro(&self) -> String {
         String::select("/etc/os-release", "NAME", '=')
     }
 
     /// get_platform_id: Returns the platform id
-    /// fn get_platform_id(self) -> String;
     fn get_platform_id(&self) -> String {
         String::select("/etc/os-release", "PLATFORM_ID", '=')
     }
 
     /// get_cpe_name: Returns the Common Platform Enum Name
-    /// fn get_platform(&self) -> String;
     fn get_cpe_name(&self) -> String {
         String::select("/etc/os-release", "CPE_NAME", '=')
     }
 
     /// get_hostname: Returns the hostname of the system
-    /// fn get_hostname(&self) -> String;
     fn get_hostname(&self) -> String {
         let hostname = fs::read_to_string("/etc/hostname").expect("Failed to retrieve hostname");
 
@@ -127,7 +122,6 @@ impl LinuxSystem for Environment {
     }
 
     /// cpuinfo_cores: Returns the number of cores on the CPU
-    /// fn cpuinfo_cores(self) -> u32;
     fn cpuinfo_cores(&self) -> u32 {
         String::select("/proc/cpuinfo", "cpu cores", ':')
             .trim()
@@ -136,7 +130,6 @@ impl LinuxSystem for Environment {
     }
 
     /// cpuinfo_model: Returns the model of the CPU
-    /// fn cpuinfo_model(self) -> String;
     fn cpuinfo_model(&self) -> String {
         String::select("/proc/cpuinfo", "model name", ':')
             .trim()
@@ -147,7 +140,6 @@ impl LinuxSystem for Environment {
 #[cfg(target_os = "windows")]
 impl WindowsSystem for Environment {
     /// get_edition: Returns the edition of Windows
-    /// fn get_edition(self) -> String;
     fn get_edition(&self) -> String {
         let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
         let subkey = hklm
@@ -163,7 +155,6 @@ impl WindowsSystem for Environment {
 
 impl CrossPlatform for Environment {
     /// get_os: Returns the Operating System
-    /// fn get_os(self) -> OperatingSystem;
     fn get_os(&self) -> OperatingSystem {
         match std::env::consts::OS {
             "linux" => OperatingSystem::Linux,
@@ -180,7 +171,6 @@ impl CrossPlatform for Environment {
     }
 
     /// get_arch: Returns the Architecture
-    /// fn get_arch(self) -> Architecture;
     fn get_arch(&self) -> Architecture {
         match std::env::consts::ARCH {
             "x86" => Architecture::X86,
