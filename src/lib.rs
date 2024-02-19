@@ -296,7 +296,7 @@ mod tests {
     #[cfg(target_os = "linux")]
     #[test]
     fn test_select() {
-        let capture = String::select("/etc/os-release", "VERSION_ID", '=');
-        assert_eq!(capture, "39");
+        let version_id = String::select("/etc/os-release", "VERSION_ID", '=');
+        assert_eq!(version_id, "39");
     }
 }
