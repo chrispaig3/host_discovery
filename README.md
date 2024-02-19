@@ -21,6 +21,7 @@ fn main() {
   
   - ***fn*** `get_os`: Returns a variant of OperatingSystem
   - ***fn*** `get_arch`: Returns a variant of Architecture
+  - ***fn*** `get_public_ip`: Returns the public ip
 > ***trait*** `LinuxSystem`
 
   - ***fn*** `cpuinfo_cores`: Returns a u32 representing the CPU core count
