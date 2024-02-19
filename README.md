@@ -28,7 +28,7 @@ fn main() {
   - ***fn*** `cpuinfo_model`: Returns a String containing the name of the CPU model
   - ***fn*** `get_distro`: Returns a String containing the name of the running Linux distribution
   - ***fn*** `get_cpe_name`: Returns a String containing the common platform enum
-  - ***fn*** `get_hostname`: Returns a string containing the hostname of the machine
+  - ***fn*** `get_hostname`: Returns a String containing the hostname of the machine
   - ***fn*** `is_subsystem_env`: Returns a boolean based on whether the Linux environment is a Windows subsystem
 > ***trait*** `WindowsSystem`
 
