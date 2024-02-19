@@ -21,6 +21,7 @@ fn main() {
   
   - ***fn*** `get_os`: Returns a variant of OperatingSystem
   - ***fn*** `get_arch`: Returns a variant of Architecture
+  - ***fn*** `get_gpu_model`: Returns a String containing the GPU model
   - ***fn*** `get_public_ip`: Returns String containing the public ip address
 > ***trait*** `LinuxSystem`
 
