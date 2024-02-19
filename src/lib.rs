@@ -2,6 +2,8 @@ use core::fmt::{Display, Formatter, Result};
 use std::fs;
 use std::path::Path;
 
+use wgpu::{Backends, Instance};
+
 #[cfg(target_os = "windows")]
 use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
 
@@ -60,6 +62,7 @@ pub trait CrossPlatform {
     fn get_os(&self) -> OperatingSystem;
     fn get_arch(&self) -> Architecture;
     fn get_public_ip(&self) -> String;
+    fn get_gpu_model(&self) -> String;
 }
 
 trait Parser {
@@ -198,6 +201,18 @@ impl CrossPlatform for Environment {
         }
     }
 
+    /// get_gpu_model: Returns the model name of the GPU
+    fn get_gpu_model(&self) -> String {
+        let instance = Instance::default();
+        let adapter_enum = instance.enumerate_adapters(Backends::all());
+
+        for adapter in adapter_enum {
+            let name = adapter.get_info().name;
+            return name;
+        }
+        String::new()
+    }
+
     /// get_public_ip: Returns the public IP address of the host machine
     fn get_public_ip(&self) -> String {
         let ip = reqwest::blocking::get("https://api.ipify.org")
@@ -266,6 +281,12 @@ mod tests {
     fn test_cpuinfo_model() {
         let model = Environment.cpuinfo_model();
         assert_eq!(model, "AMD Ryzen 7 5700X 8-Core Processor");
+    }
+
+    #[test]
+    fn test_get_gpu_model() {
+        let gpu_model = Environment.get_gpu_model();
+        assert_eq!("NVIDIA GeForce RTX 3070 Ti", gpu_model)
     }
 
     #[cfg(target_os = "windows")]
