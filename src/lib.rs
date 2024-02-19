@@ -1,4 +1,5 @@
 use core::fmt::{Display, Formatter, Result};
+use std::env::consts::{ARCH, OS};
 use std::fs;
 use std::path::Path;
 
@@ -156,7 +157,7 @@ impl WindowsSystem for Environment {
 impl CrossPlatform for Environment {
     /// get_os: Returns the Operating System
     fn get_os(&self) -> OperatingSystem {
-        match std::env::consts::OS {
+        match OS {
             "linux" => OperatingSystem::Linux,
             "android" => OperatingSystem::Android,
             "freebsd" => OperatingSystem::FreeBSD,
@@ -172,7 +173,7 @@ impl CrossPlatform for Environment {
 
     /// get_arch: Returns the Architecture
     fn get_arch(&self) -> Architecture {
-        match std::env::consts::ARCH {
+        match ARCH {
             "x86" => Architecture::X86,
             "x86_64" => Architecture::X86_64,
             "arm" => Architecture::Arm,
