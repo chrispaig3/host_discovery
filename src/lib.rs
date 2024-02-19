@@ -195,9 +195,9 @@ impl CrossPlatform for Environment {
     /// get_gpu_model: Returns the model name of the GPU
     fn get_gpu_model(&self) -> String {
         let instance = Instance::default();
-        let adapter_enum = instance.enumerate_adapters(Backends::all());
+        let adapters = |all| instance.enumerate_adapters(all);
 
-        for adapter in adapter_enum {
+        for adapter in adapters(Backends::all()) {
             let name = adapter.get_info().name;
             return name;
         }
