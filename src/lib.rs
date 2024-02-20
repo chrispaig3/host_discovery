@@ -57,13 +57,14 @@ pub trait LinuxSystem {
 
 pub trait WindowsSystem {
     fn get_edition(&self) -> String;
+    fn get_cpu_model(&self) -> String;
 }
 
 pub trait CrossPlatform {
     fn get_os(&self) -> OperatingSystem;
     fn get_arch(&self) -> Architecture;
     fn get_public_ip(&self) -> String;
-    fn get_gpu_model(&self) -> String;
+    fn get_gpu_model(&self) -> Option<String>;
 }
 
 trait Parser {
@@ -152,6 +153,19 @@ impl WindowsSystem for Environment {
             .expect("Failed to get value");
         edition
     }
+
+    /// get_cpu_model: Returns the model of the CPU
+    fn get_cpu_model(&self) -> String {
+        let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
+        let subkey = hklm
+            .open_subkey("HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0")
+            .expect("Failed to open subkey");
+
+        let model = subkey
+            .get_value::<String, _>("ProcessorNameString")
+            .expect("Failed to get value");
+        model.trim().to_string()
+    }
 }
 
 impl CrossPlatform for Environment {
@@ -193,15 +207,15 @@ impl CrossPlatform for Environment {
     }
 
     /// get_gpu_model: Returns the model name of the GPU
-    fn get_gpu_model(&self) -> String {
+    fn get_gpu_model(&self) -> Option<String> {
         let instance = Instance::default();
         let adapters = |all| instance.enumerate_adapters(all);
 
         for adapter in adapters(Backends::all()) {
             let name = adapter.get_info().name;
-            return name;
+            return Some(name);
         }
-        String::new()
+        None
     }
 
     /// get_public_ip: Returns the public IP address of the host machine
@@ -277,7 +291,7 @@ mod tests {
     #[test]
     fn test_get_gpu_model() {
         let gpu_model = Environment.get_gpu_model();
-        assert_eq!("NVIDIA GeForce RTX 3070 Ti", gpu_model)
+        assert_eq!(Some("NVIDIA GeForce RTX 3070 Ti".to_string()), gpu_model);
     }
 
     #[cfg(target_os = "windows")]
@@ -285,6 +299,13 @@ mod tests {
     fn test_get_edition() {
         let edition = Environment.get_edition();
         assert_eq!(edition, "Professional");
+    }
+
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn test_get_cpu_model() {
+        let model = Environment.get_cpu_model();
+        assert_eq!(model, "AMD Ryzen 7 5700X 8-Core Processor");
     }
 
     #[test]
