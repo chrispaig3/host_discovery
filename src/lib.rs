@@ -225,8 +225,8 @@ impl CrossPlatform for Environment {
         .expect("Failed to get public IP")
         .text()
         .expect("Failed to parse response");
-    ip
-}
+        ip
+    }
 }
 
 impl_display!(OperatingSystem);
