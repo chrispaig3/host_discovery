@@ -3,6 +3,7 @@ use std::env::consts::{ARCH, OS};
 use std::fs;
 use std::path::Path;
 
+use num_cpus;
 use wgpu::{Backends, Instance};
 
 #[cfg(target_os = "windows")]
@@ -51,10 +52,10 @@ pub trait LinuxSystem {
     fn get_platform_id(&self) -> String;
     fn get_cpe_name(&self) -> String;
     fn get_hostname(&self) -> String;
-    fn cpuinfo_cores(&self) -> u32;
     fn cpuinfo_model(&self) -> String;
 }
 
+#[cfg(target_os = "windows")]
 pub trait WindowsSystem {
     fn get_edition(&self) -> String;
     fn get_cpu_model(&self) -> String;
@@ -63,6 +64,7 @@ pub trait WindowsSystem {
 pub trait CrossPlatform {
     fn get_os(&self) -> OperatingSystem;
     fn get_arch(&self) -> Architecture;
+    fn cpu_cores(&self) -> u32;
     fn get_public_ip(&self) -> String;
     fn get_gpu_model(&self) -> Option<String>;
 }
@@ -123,14 +125,6 @@ impl LinuxSystem for Environment {
         hostname.trim().to_string()
     }
 
-    /// cpuinfo_cores: Returns the number of cores on the CPU
-    fn cpuinfo_cores(&self) -> u32 {
-        String::select("/proc/cpuinfo", "cpu cores", ':')
-            .trim()
-            .parse::<u32>()
-            .expect("Failed to parse String to unsigned int")
-    }
-
     /// cpuinfo_model: Returns the model of the CPU
     fn cpuinfo_model(&self) -> String {
         String::select("/proc/cpuinfo", "model name", ':')
@@ -166,6 +160,7 @@ impl WindowsSystem for Environment {
             .expect("Failed to get value");
         model.trim().to_string()
     }
+
 }
 
 impl CrossPlatform for Environment {
@@ -184,8 +179,8 @@ impl CrossPlatform for Environment {
             _ => OperatingSystem::Unknown,
         }
     }
-
-    /// get_arch: Returns the Architecture
+    
+    /// get_arch: Returns the CPU Architecture
     fn get_arch(&self) -> Architecture {
         match ARCH {
             "x86" => Architecture::X86,
@@ -206,26 +201,32 @@ impl CrossPlatform for Environment {
         }
     }
 
+    /// cpu_cores: Returns the number of cores on the CPU
+    fn cpu_cores(&self) -> u32 {
+        let cores = num_cpus::get_physical();
+        cores as u32
+    }
+    
     /// get_gpu_model: Returns the model name of the GPU
     fn get_gpu_model(&self) -> Option<String> {
         let instance = Instance::default();
         let adapters = |all| instance.enumerate_adapters(all);
-
+        
         for adapter in adapters(Backends::all()) {
             let name = adapter.get_info().name;
             return Some(name);
         }
         None
     }
-
+    
     /// get_public_ip: Returns the public IP address of the host machine
     fn get_public_ip(&self) -> String {
         let ip = reqwest::blocking::get("https://api.ipify.org")
-            .expect("Failed to get public IP")
-            .text()
-            .expect("Failed to parse response");
-        ip
-    }
+        .expect("Failed to get public IP")
+        .text()
+        .expect("Failed to parse response");
+    ip
+}
 }
 
 impl_display!(OperatingSystem);
@@ -276,13 +277,6 @@ mod tests {
 
     #[cfg(target_os = "linux")]
     #[test]
-    fn test_cpuinfo_cores() {
-        let cores = Environment.cpuinfo_cores();
-        assert_eq!(cores, 8);
-    }
-
-    #[cfg(target_os = "linux")]
-    #[test]
     fn test_cpuinfo_model() {
         let model = Environment.cpuinfo_model();
         assert_eq!(model, "AMD Ryzen 7 5700X 8-Core Processor");
@@ -306,6 +300,12 @@ mod tests {
     fn test_get_cpu_model() {
         let model = Environment.get_cpu_model();
         assert_eq!(model, "AMD Ryzen 7 5700X 8-Core Processor");
+    }
+
+    #[test]
+    fn test_cpu_cores() {
+        let cores = Environment.cpu_cores();
+        assert_eq!(cores, 8);
     }
 
     #[test]
