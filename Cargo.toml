@@ -4,11 +4,14 @@ name = "host_discovery"
 license = "MIT"
 documentation = "https://docs.rs/host_discovery"
 description = "A simple Rust crate for host discovery"
-version = "1.8.5"
+version = "1.9.0"
 repository = "https://github.com/v0idmatr1x/host_discovery"
 edition = "2021"
 
 [dependencies]
+num_cpus = "1.16.0"
 reqwest = { version = "0.11.24", features = ["blocking"] }
 wgpu = "0.19.1"
+
+[target.'cfg(windows)'.dependencies]
 winreg = "0.52.0"
