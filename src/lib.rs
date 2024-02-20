@@ -64,7 +64,7 @@ pub trait WindowsSystem {
 pub trait CrossPlatform {
     fn get_os(&self) -> OperatingSystem;
     fn get_arch(&self) -> Architecture;
-    fn cpu_cores(&self) -> u32;
+    fn get_cpu_cores(&self) -> u32;
     fn get_public_ip(&self) -> String;
     fn get_gpu_model(&self) -> Option<String>;
 }
@@ -201,8 +201,8 @@ impl CrossPlatform for Environment {
         }
     }
 
-    /// cpu_cores: Returns the number of cores on the CPU
-    fn cpu_cores(&self) -> u32 {
+    /// get_cpu_cores: Returns the number of cores on the CPU
+    fn get_cpu_cores(&self) -> u32 {
         let cores = num_cpus::get_physical();
         cores as u32
     }
@@ -303,8 +303,8 @@ mod tests {
     }
 
     #[test]
-    fn test_cpu_cores() {
-        let cores = Environment.cpu_cores();
+    fn test_get_cpu_cores() {
+        let cores = Environment.get_cpu_cores();
         assert_eq!(cores, 8);
     }
 
