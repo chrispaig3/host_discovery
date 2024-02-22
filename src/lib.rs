@@ -58,6 +58,7 @@ pub trait LinuxSystem {
 #[cfg(target_os = "windows")]
 pub trait WindowsSystem {
     fn get_edition(&self) -> String;
+    fn get_win_hostname(&self) -> String;
     fn get_cpu_model(&self) -> String;
 }
 
@@ -161,6 +162,18 @@ impl WindowsSystem for Environment {
         model.trim().to_string()
     }
 
+    /// get_hostname: Returns the hostname of the system
+    fn get_win_hostname(&self) -> String {
+        let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
+        let subkey = hklm
+            .open_subkey("SYSTEM\\CurrentControlSet\\Control\\ComputerName\\ComputerName")
+            .expect("Failed to open subkey");
+
+        let hostname = subkey
+            .get_value::<String, _>("ComputerName")
+            .expect("Failed to get value");
+        hostname
+    }
 }
 
 impl CrossPlatform for Environment {
@@ -297,6 +310,13 @@ mod tests {
 
     #[cfg(target_os = "windows")]
     #[test]
+    fn test_get_win_hostname() {
+        let hostname = Environment.get_win_hostname();
+        assert_eq!(hostname, "THELAB");
+    }
+
+    #[cfg(target_os = "windows")]
+    #[test]
     fn test_get_cpu_model() {
         let model = Environment.get_cpu_model();
         assert_eq!(model, "AMD Ryzen 7 5700X 8-Core Processor");
@@ -311,7 +331,7 @@ mod tests {
     #[test]
     fn test_get_os() {
         let os = Environment.get_os();
-        assert_eq!(os, OperatingSystem::Linux);
+        assert_eq!(os, OperatingSystem::Windows);
     }
 
     #[test]
