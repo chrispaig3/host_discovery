@@ -9,6 +9,7 @@ use host_discovery::{Environment, CrossPlatform, LinuxSystem};
 
 fn main() {
     let env = Environment::new();
+    
     let os = env.get_os();
     let distro = env.get_distro();
     let arch = env.get_arch();
@@ -33,7 +34,8 @@ fn main() {
   - ***fn*** `is_subsystem_env`: Returns a boolean based on whether the Linux environment is a Windows subsystem
 > ***trait*** `WindowsSystem`
 
-  - ***fn*** `get_edition` Returns a String containing the Windows edition via the registry
+  - ***fn*** `get_edition`: Returns a String containing the Windows edition via the registry
+  - ***fn*** `get_win_hostname`: Returns a String containing the hostname of the machine
   - ***fn*** `get_cpu_model`: Returns a String containing the CPU model via the Windows registry
     
 ### Add to your project
