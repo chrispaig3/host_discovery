@@ -2,6 +2,7 @@ use core::fmt::{Display, Formatter, Result};
 use std::env::consts::{ARCH, OS};
 use std::fs;
 use std::path::Path;
+use std::process::Command;
 
 use num_cpus;
 use wgpu::{Backends, Instance};
@@ -53,6 +54,12 @@ pub trait LinuxSystem {
     fn get_cpe_name(&self) -> String;
     fn get_hostname(&self) -> String;
     fn cpuinfo_model(&self) -> String;
+}
+
+trait AppleSystem {
+    fn get_mac_hostname(&self) -> String;
+    //fn get_macos_codename(&self) -> String;
+    fn get_mac_cpu_model(&self) -> String;
 }
 
 #[cfg(target_os = "windows")]
@@ -129,6 +136,33 @@ impl LinuxSystem for Environment {
     /// cpuinfo_model: Returns the model of the CPU
     fn cpuinfo_model(&self) -> String {
         String::select("/proc/cpuinfo", "model name", ':')
+            .trim()
+            .to_string()
+    }
+}
+
+impl AppleSystem for Environment {
+    fn get_mac_hostname(&self) -> String {
+        let hostname = Command::new("/bin/hostname")
+            .output()
+            .expect("Failed to get hostname").stdout
+            .iter()
+            .map(|&c| c as char)
+            .collect();
+        hostname
+    }
+
+    fn get_mac_cpu_model(&self) -> String {
+        let model: String = Command::new("/usr/sbin/sysctl")
+            .arg("machdep.cpu.brand_string")
+            .output()
+            .expect("Failed to get CPU model").stdout
+            .iter()
+            .map(|&c| c as char)
+            .collect();
+
+        model.strip_prefix("machdep.cpu.brand_string: ")
+            .expect("Failed to strip prefix")
             .trim()
             .to_string()
     }
@@ -235,9 +269,9 @@ impl CrossPlatform for Environment {
     /// get_public_ip: Returns the public IP address of the host machine
     fn get_public_ip(&self) -> String {
         let ip = reqwest::blocking::get("https://api.ipify.org")
-        .expect("Failed to get public IP")
-        .text()
-        .expect("Failed to parse response");
+            .expect("Failed to get public IP")
+            .text()
+            .expect("Failed to parse response");
         ip
     }
 }
@@ -351,5 +385,17 @@ mod tests {
     fn test_select() {
         let version_id = String::select("/etc/os-release", "VERSION_ID", '=');
         assert_eq!(version_id, "39");
+    }
+
+    #[test]
+    fn test_get_mac_hostname() {
+        let hostname = Environment.get_mac_hostname();
+        assert_eq!(hostname, "TheLab");
+    }
+
+    #[test]
+    fn test_get_mac_cpu_model() {
+        let model = Environment.get_mac_cpu_model();
+        assert_eq!(model, "Apple M1");
     }
 }
