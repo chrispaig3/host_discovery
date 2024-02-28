@@ -58,7 +58,6 @@ pub trait LinuxSystem {
 
 trait AppleSystem {
     fn get_mac_hostname(&self) -> String;
-    //fn get_macos_codename(&self) -> String;
     fn get_mac_cpu_model(&self) -> String;
 }
 
@@ -142,6 +141,7 @@ impl LinuxSystem for Environment {
 }
 
 impl AppleSystem for Environment {
+    /// get_mac_hostname: Returns the hostname of the system
     fn get_mac_hostname(&self) -> String {
         let hostname = Command::new("/bin/hostname")
             .output()
@@ -152,6 +152,7 @@ impl AppleSystem for Environment {
         hostname
     }
 
+    /// get_mac_cpu_model: Returns the model of the CPU
     fn get_mac_cpu_model(&self) -> String {
         let model: String = Command::new("/usr/sbin/sysctl")
             .arg("machdep.cpu.brand_string")
