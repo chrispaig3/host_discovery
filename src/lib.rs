@@ -56,7 +56,7 @@ pub trait LinuxSystem {
     fn cpuinfo_model(&self) -> String;
 }
 
-trait AppleSystem {
+pub trait AppleSystem {
     fn get_mac_hostname(&self) -> String;
     fn get_mac_cpu_model(&self) -> String;
 }
