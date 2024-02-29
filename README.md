@@ -44,8 +44,9 @@ fn main() {
 ```
 
 > Planned Features
-  
-- GPU enumeration & extended device detection (CPU, etc.).
+
+- API redesign to improve ergonomics and DRYness 
+- Extended device detection (CPU, etc.).
 - FreeBSD, MacOS, and extended Windows support
 
 > ***If you experience any bugs, please don't hesitate to create an issue; so they may be fixed in a timely fashion.***
