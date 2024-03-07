@@ -1,3 +1,8 @@
+> ***Disclaimer*** This project has been deprecated in favor of [Whoami](https://github.com/ardaku/whoami)
+
+- Whoami is ultimately the better implementation of this functionality, and as a result I see no reason to continue maintaining this repo.
+- This codebase will continue to exist as a public archive.
+
 # A simple Rust crate for host discovery
 
 > Make more decisions based on the characteristics of the environment your code runs in.
