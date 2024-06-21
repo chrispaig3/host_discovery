@@ -6,25 +6,25 @@ use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
 
 pub struct OSInfo {
     pub os: &'static str,
+    pub arch: &'static str,
     pub win_edition: Option<String>,
     pub linux_distro: Option<String>,
-    pub arch: &'static str,
 }
 
 pub struct OSProfile {
     pub os: &'static str,
+    pub arch: &'static str,
     pub win_edition: Option<String>,
     pub linux_distro: Option<String>,
-    pub arch: &'static str,
 }
 
 impl OSProfile {
     pub fn new() -> Self {
         Self {
             os: OS,
+            arch: ARCH,
             win_edition: None,
             linux_distro: None,
-            arch: ARCH,
         }
     }
 
