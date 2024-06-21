@@ -8,6 +8,7 @@ pub struct OSInfo {
     pub os: &'static str,
     pub arch: &'static str,
     pub win_edition: Option<String>,
+    pub is_wsl: Option<bool>,
     pub linux_distro: Option<String>,
 }
 
@@ -15,6 +16,7 @@ pub struct OSProfile {
     pub os: &'static str,
     pub arch: &'static str,
     pub win_edition: Option<String>,
+    pub is_wsl: Option<bool>,
     pub linux_distro: Option<String>,
 }
 
@@ -24,10 +26,12 @@ impl OSProfile {
             os: OS,
             arch: ARCH,
             win_edition: None,
+            is_wsl: None,
             linux_distro: None,
         }
     }
 
+    /// Returns the Windows edition if a Windows system is available
     #[cfg(target_os = "windows")]
     pub fn win_edition(mut self) -> Self {
         let sub_key = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion";
@@ -42,11 +46,13 @@ impl OSProfile {
             os: self.os,
             arch: self.arch,
             win_edition: self.win_edition,
+            is_wsl: self.is_wsl,
             linux_distro: self.linux_distro,
         }
     }
 }
 
+/// Returns the GPU model
 pub fn gpu() -> Option<String> {
     let instance = Instance::default();
     
