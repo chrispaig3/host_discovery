@@ -101,4 +101,10 @@ mod tests {
         assert_eq!(sys_profile.os, OS);
         assert_eq!(sys_profile.arch, ARCH);
     }
+
+    #[test]
+    fn test_gpu() {
+        let gpu = gpu();
+        assert!(gpu.is_some());
+    }
 }
