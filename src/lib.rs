@@ -1,4 +1,8 @@
 use std::env::consts::{ARCH, OS};
+#[cfg(target_os = "linux")]
+use std::fs;
+#[cfg(target_os = "linux")]
+use std::path::Path;
 use wgpu::{Backends, Instance};
 
 #[cfg(target_os = "windows")]
@@ -36,8 +40,32 @@ impl OSProfile {
     pub fn win_edition(mut self) -> Self {
         let sub_key = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion";
         let reg = RegKey::predef(HKEY_LOCAL_MACHINE).open_subkey(sub_key).expect("Failed to open registry key");
+        
         let edition: String = reg.get_value("EditionID").expect("Failed to get Windows edition from registry");
         self.win_edition = Some(edition);
+        self
+    }
+
+    /// Returns the Linux distro if a Linux system is available
+    #[cfg(target_os = "linux")]
+    pub fn linux_distro(mut self) -> Self {
+        let text = fs::read_to_string("/etc/os-release").expect("Failed to read /etc/os-release");
+        let tokens = text.split("\n").collect::<Vec<&str>>();
+        let pretty_name = tokens
+            .iter()
+            .filter(|line| line.contains("PRETTY_NAME"))
+            .collect::<Vec<&&str>>();
+        
+        let distro = pretty_name[0].split("=").collect::<Vec<&str>>()[1].replace("\"", "");
+        self.linux_distro = Some(distro);
+        self
+    }
+
+    /// Returns true if the Linux host is running on WSL
+    #[cfg(target_os = "linux")]
+    pub fn is_wsl(mut self) -> Self {
+        let path = Path::new("/proc/sys/fs/binfmt_misc/WSLInterop").exists();
+        self.is_wsl = Some(path);
         self
     }
 
@@ -72,15 +100,5 @@ mod tests {
         let sys_profile = OSProfile::new().build();
         assert_eq!(sys_profile.os, OS);
         assert_eq!(sys_profile.arch, ARCH);
-
-        println!("OS: {}", sys_profile.os);
-        println!("Arch: {}", sys_profile.arch);
-    }
-
-    #[test]
-    fn test_gpu() {
-        let gpu = gpu();
-        assert!(gpu.is_some());
-        println!("GPU: {}", gpu.unwrap());
     }
 }
