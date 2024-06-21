@@ -1,402 +1,104 @@
-use core::fmt::{Display, Formatter, Result};
 use std::env::consts::{ARCH, OS};
+#[cfg(target_os = "linux")]
 use std::fs;
+#[cfg(target_os = "linux")]
 use std::path::Path;
-use std::process::Command;
-
-use num_cpus;
 use wgpu::{Backends, Instance};
 
 #[cfg(target_os = "windows")]
 use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
 
-mod impl_display;
-
-pub struct Environment;
-
-#[derive(Debug, PartialEq)]
-pub enum OperatingSystem {
-    Linux,
-    Android,
-    FreeBSD,
-    DragonFlyBSD,
-    NetBSD,
-    OpenBSD,
-    Solaris,
-    MacOS,
-    Windows,
-    Unknown,
+pub struct OSInfo {
+    pub os: &'static str,
+    pub arch: &'static str,
+    pub win_edition: Option<String>,
+    pub is_wsl: Option<bool>,
+    pub linux_distro: Option<String>,
 }
 
-#[derive(Debug, PartialEq)]
-pub enum Architecture {
-    X86,
-    X86_64,
-    Arm,
-    Aarch64,
-    Loongarch64,
-    M68k,
-    Csky,
-    Mips,
-    Mips64,
-    Powerpc,
-    Powerpc64,
-    Riscv64,
-    S390x,
-    Sparc64,
-    Unknown,
+pub struct OSProfile {
+    pub os: &'static str,
+    pub arch: &'static str,
+    pub win_edition: Option<String>,
+    pub is_wsl: Option<bool>,
+    pub linux_distro: Option<String>,
 }
 
-pub trait LinuxSystem {
-    fn is_subsystem_env(&self) -> bool;
-    fn get_distro(&self) -> String;
-    fn get_platform_id(&self) -> String;
-    fn get_cpe_name(&self) -> String;
-    fn get_hostname(&self) -> String;
-    fn cpuinfo_model(&self) -> String;
-}
-
-pub trait AppleSystem {
-    fn get_mac_hostname(&self) -> String;
-    fn get_mac_cpu_model(&self) -> String;
-}
-
-#[cfg(target_os = "windows")]
-pub trait WindowsSystem {
-    fn get_edition(&self) -> String;
-    fn get_win_hostname(&self) -> String;
-    fn get_cpu_model(&self) -> String;
-}
-
-pub trait CrossPlatform {
-    fn get_os(&self) -> OperatingSystem;
-    fn get_arch(&self) -> Architecture;
-    fn get_cpu_cores(&self) -> u32;
-    fn get_public_ip(&self) -> String;
-    fn get_gpu_model(&self) -> Option<String>;
-}
-
-trait Parser {
-    fn select(path: &'static str, text: &'static str, elem: char) -> String;
-}
-
-impl Parser for String {
-    // select: takes a path, some text to match against, and a character (element) to split the line by
-    fn select(path: &'static str, text: &'static str, elem: char) -> String {
-        let contents = fs::read_to_string(path).expect("Failed to read file");
-
-        let capture = contents
-            .lines()
-            .find(|line| line.starts_with(text))
-            .expect("Failed to find the specified text")
-            .split(elem)
-            .nth(1)
-            .expect("Failed to parse environment variable")
-            .trim_matches('"')
-            .to_string();
-        capture
-    }
-}
-
-impl Environment {
+impl OSProfile {
     pub fn new() -> Self {
-        Self {}
-    }
-}
-
-impl LinuxSystem for Environment {
-    /// is_subsystem_env: Returns true if the environment is a Windows Subsystem for Linux
-    fn is_subsystem_env(&self) -> bool {
-        Path::new("/proc/sys/fs/binfmt_misc/WSLInterop").exists()
-    }
-
-    /// get_distro: Returns the name of the Linux distribution
-    fn get_distro(&self) -> String {
-        String::select("/etc/os-release", "NAME", '=')
-    }
-
-    /// get_platform_id: Returns the platform id
-    fn get_platform_id(&self) -> String {
-        String::select("/etc/os-release", "PLATFORM_ID", '=')
-    }
-
-    /// get_cpe_name: Returns the Common Platform Enum Name
-    fn get_cpe_name(&self) -> String {
-        String::select("/etc/os-release", "CPE_NAME", '=')
-    }
-
-    /// get_hostname: Returns the hostname of the system
-    fn get_hostname(&self) -> String {
-        let hostname = fs::read_to_string("/etc/hostname").expect("Failed to retrieve hostname");
-
-        hostname.trim().to_string()
-    }
-
-    /// cpuinfo_model: Returns the model of the CPU
-    fn cpuinfo_model(&self) -> String {
-        String::select("/proc/cpuinfo", "model name", ':')
-            .trim()
-            .to_string()
-    }
-}
-
-impl AppleSystem for Environment {
-    /// get_mac_hostname: Returns the hostname of the system
-    fn get_mac_hostname(&self) -> String {
-        let hostname = Command::new("/bin/hostname")
-            .output()
-            .expect("Failed to get hostname").stdout
-            .iter()
-            .map(|&c| c as char)
-            .collect();
-        hostname
-    }
-
-    /// get_mac_cpu_model: Returns the model of the CPU
-    fn get_mac_cpu_model(&self) -> String {
-        let model: String = Command::new("/usr/sbin/sysctl")
-            .arg("machdep.cpu.brand_string")
-            .output()
-            .expect("Failed to get CPU model").stdout
-            .iter()
-            .map(|&c| c as char)
-            .collect();
-
-        model.strip_prefix("machdep.cpu.brand_string: ")
-            .expect("Failed to strip prefix")
-            .trim()
-            .to_string()
-    }
-}
-
-#[cfg(target_os = "windows")]
-impl WindowsSystem for Environment {
-    /// get_edition: Returns the edition of Windows
-    fn get_edition(&self) -> String {
-        let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
-        let subkey = hklm
-            .open_subkey("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion")
-            .expect("Failed to open subkey");
-
-        let edition = subkey
-            .get_value::<String, _>("EditionID")
-            .expect("Failed to get value");
-        edition
-    }
-
-    /// get_cpu_model: Returns the model of the CPU
-    fn get_cpu_model(&self) -> String {
-        let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
-        let subkey = hklm
-            .open_subkey("HARDWARE\\DESCRIPTION\\System\\CentralProcessor\\0")
-            .expect("Failed to open subkey");
-
-        let model = subkey
-            .get_value::<String, _>("ProcessorNameString")
-            .expect("Failed to get value");
-        model.trim().to_string()
-    }
-
-    /// get_hostname: Returns the hostname of the system
-    fn get_win_hostname(&self) -> String {
-        let hklm = RegKey::predef(HKEY_LOCAL_MACHINE);
-        let subkey = hklm
-            .open_subkey("SYSTEM\\CurrentControlSet\\Control\\ComputerName\\ComputerName")
-            .expect("Failed to open subkey");
-
-        let hostname = subkey
-            .get_value::<String, _>("ComputerName")
-            .expect("Failed to get value");
-        hostname
-    }
-}
-
-impl CrossPlatform for Environment {
-    /// get_os: Returns the Operating System
-    fn get_os(&self) -> OperatingSystem {
-        match OS {
-            "linux" => OperatingSystem::Linux,
-            "android" => OperatingSystem::Android,
-            "freebsd" => OperatingSystem::FreeBSD,
-            "dragonfly" => OperatingSystem::DragonFlyBSD,
-            "netbsd" => OperatingSystem::NetBSD,
-            "openbsd" => OperatingSystem::OpenBSD,
-            "solaris" => OperatingSystem::Solaris,
-            "macos" => OperatingSystem::MacOS,
-            "windows" => OperatingSystem::Windows,
-            _ => OperatingSystem::Unknown,
-        }
-    }
-    
-    /// get_arch: Returns the CPU Architecture
-    fn get_arch(&self) -> Architecture {
-        match ARCH {
-            "x86" => Architecture::X86,
-            "x86_64" => Architecture::X86_64,
-            "arm" => Architecture::Arm,
-            "aarch64" => Architecture::Aarch64,
-            "loongarch64" => Architecture::Loongarch64,
-            "m68k" => Architecture::M68k,
-            "csky" => Architecture::Csky,
-            "mips" => Architecture::Mips,
-            "mips64" => Architecture::Mips64,
-            "powerpc" => Architecture::Powerpc,
-            "powerpc64" => Architecture::Powerpc64,
-            "riscv64" => Architecture::Riscv64,
-            "s390x" => Architecture::S390x,
-            "sparc64" => Architecture::Sparc64,
-            _ => Architecture::Unknown,
+        Self {
+            os: OS,
+            arch: ARCH,
+            win_edition: None,
+            is_wsl: None,
+            linux_distro: None,
         }
     }
 
-    /// get_cpu_cores: Returns the number of cores on the CPU
-    fn get_cpu_cores(&self) -> u32 {
-        let cores = num_cpus::get_physical();
-        cores as u32
-    }
-    
-    /// get_gpu_model: Returns the model name of the GPU
-    fn get_gpu_model(&self) -> Option<String> {
-        let instance = Instance::default();
-        let adapters = |all| instance.enumerate_adapters(all);
+    /// Returns the Windows edition if a Windows system is available
+    #[cfg(target_os = "windows")]
+    pub fn win_edition(mut self) -> Self {
+        let sub_key = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion";
+        let reg = RegKey::predef(HKEY_LOCAL_MACHINE).open_subkey(sub_key).expect("Failed to open registry key");
+        let edition: String = reg.get_value("EditionID").expect("Failed to get Windows edition from registry");
         
-        for adapter in adapters(Backends::all()) {
-            let name = adapter.get_info().name;
-            return Some(name);
-        }
-        None
+        self.win_edition = Some(edition);
+        self
     }
-    
-    /// get_public_ip: Returns the public IP address of the host machine
-    fn get_public_ip(&self) -> String {
-        let ip = reqwest::blocking::get("https://api.ipify.org")
-            .expect("Failed to get public IP")
-            .text()
-            .expect("Failed to parse response");
-        ip
+
+    /// Returns the Linux distro if a Linux system is available
+    #[cfg(target_os = "linux")]
+    pub fn linux_distro(mut self) -> Self {
+        let text = fs::read_to_string("/etc/os-release").expect("Failed to read /etc/os-release");
+        let tokens = text.split("\n").collect::<Vec<&str>>();
+        let pretty_name = tokens
+            .iter()
+            .filter(|line| line.contains("PRETTY_NAME"))
+            .collect::<Vec<&&str>>();
+        
+        let distro = pretty_name[0].split("=").collect::<Vec<&str>>()[1].replace("\"", "");
+        self.linux_distro = Some(distro);
+        self
+    }
+
+    /// Returns true if the Linux host is running on WSL
+    #[cfg(target_os = "linux")]
+    pub fn is_wsl(mut self) -> Self {
+        let path = Path::new("/proc/sys/fs/binfmt_misc/WSLInterop").exists();
+        self.is_wsl = Some(path);
+        self
+    }
+
+    pub fn build(self) -> OSInfo {
+        OSInfo {
+            os: self.os,
+            arch: self.arch,
+            win_edition: self.win_edition,
+            is_wsl: self.is_wsl,
+            linux_distro: self.linux_distro,
+        }
     }
 }
 
-impl_display!(OperatingSystem);
-impl_display!(Architecture);
+/// Returns the GPU model
+pub fn gpu() -> Option<String> {
+    let instance = Instance::default();
+    
+    for adapter in instance.enumerate_adapters(Backends::all()) {
+        let name = adapter.get_info().name;
+        return Some(name);
+    }
+    None
+}
 
 #[cfg(test)]
 mod tests {
-    // Note(may not be immediately obvious): Test depends on my local environment for 100% pass.
-    // Why? Testing for the correct behavior, not necessarily the value...
-    // i.e., if the test fails on your machine, it is not inherently a bug.
-    // To prevent unnecessary Tickets, read the error message beforehand.
     use super::*;
 
-    #[cfg(target_os = "linux")]
     #[test]
-    fn test_get_distro() {
-        let distro = Environment.get_distro();
-        assert_eq!(distro, "Fedora Linux");
-    }
-
-    #[cfg(target_os = "linux")]
-    #[test]
-    fn test_get_cpe_name() {
-        let cpe_name = Environment.get_cpe_name();
-        assert_eq!(cpe_name, "cpe:/o:fedoraproject:fedora:39")
-    }
-
-    #[cfg(target_os = "linux")]
-    #[test]
-    fn test_get_hostname() {
-        let hostname = Environment.get_hostname();
-        assert_eq!(hostname, "TheLab");
-    }
-
-    #[cfg(target_os = "linux")]
-    #[test]
-    fn test_get_platform_id() {
-        let platform_id = Environment.get_platform_id();
-        assert_eq!(platform_id, "platform:f39");
-    }
-
-    #[cfg(target_os = "linux")]
-    #[test]
-    fn test_is_subsystem_env() {
-        let is_subsystem = Environment.is_subsystem_env();
-        assert_eq!(is_subsystem, false);
-    }
-
-    #[cfg(target_os = "linux")]
-    #[test]
-    fn test_cpuinfo_model() {
-        let model = Environment.cpuinfo_model();
-        assert_eq!(model, "AMD Ryzen 7 5700X 8-Core Processor");
-    }
-
-    #[test]
-    fn test_get_gpu_model() {
-        let gpu_model = Environment.get_gpu_model();
-        assert_eq!(Some("NVIDIA GeForce RTX 3070 Ti".to_string()), gpu_model);
-    }
-
-    #[cfg(target_os = "windows")]
-    #[test]
-    fn test_get_edition() {
-        let edition = Environment.get_edition();
-        assert_eq!(edition, "Professional");
-    }
-
-    #[cfg(target_os = "windows")]
-    #[test]
-    fn test_get_win_hostname() {
-        let hostname = Environment.get_win_hostname();
-        assert_eq!(hostname, "THELAB");
-    }
-
-    #[cfg(target_os = "windows")]
-    #[test]
-    fn test_get_cpu_model() {
-        let model = Environment.get_cpu_model();
-        assert_eq!(model, "AMD Ryzen 7 5700X 8-Core Processor");
-    }
-
-    #[test]
-    fn test_get_cpu_cores() {
-        let cores = Environment.get_cpu_cores();
-        assert_eq!(cores, 8);
-    }
-
-    #[test]
-    fn test_get_os() {
-        let os = Environment.get_os();
-        assert_eq!(os, OperatingSystem::Windows);
-    }
-
-    #[test]
-    fn test_get_arch() {
-        let arch = Environment.get_arch();
-        assert_eq!(arch, Architecture::X86_64);
-    }
-
-    #[test]
-    fn test_get_public_ip() {
-        let ip = Environment.get_public_ip();
-        assert_eq!(ip, "");
-    }
-
-    #[cfg(target_os = "linux")]
-    #[test]
-    fn test_select() {
-        let version_id = String::select("/etc/os-release", "VERSION_ID", '=');
-        assert_eq!(version_id, "39");
-    }
-
-    #[test]
-    fn test_get_mac_hostname() {
-        let hostname = Environment.get_mac_hostname();
-        assert_eq!(hostname, "TheLab");
-    }
-
-    #[test]
-    fn test_get_mac_cpu_model() {
-        let model = Environment.get_mac_cpu_model();
-        assert_eq!(model, "Apple M1");
+    fn test_sys_profile() {
+        let sys_profile = OSProfile::new().build();
+        assert_eq!(sys_profile.os, OS);
+        assert_eq!(sys_profile.arch, ARCH);
     }
 }
