@@ -40,8 +40,8 @@ impl OSProfile {
     pub fn win_edition(mut self) -> Self {
         let sub_key = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion";
         let reg = RegKey::predef(HKEY_LOCAL_MACHINE).open_subkey(sub_key).expect("Failed to open registry key");
-        
         let edition: String = reg.get_value("EditionID").expect("Failed to get Windows edition from registry");
+        
         self.win_edition = Some(edition);
         self
     }
