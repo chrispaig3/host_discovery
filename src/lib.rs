@@ -8,7 +8,7 @@ use wgpu::{Backends, Instance};
 #[cfg(target_os = "windows")]
 use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
 
-pub struct OSInfo {
+pub(crate) struct OSInfo {
     pub os: &'static str,
     pub arch: &'static str,
     pub win_edition: Option<String>,
