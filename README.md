@@ -5,6 +5,11 @@
 use host_discovery::{OSProfile, gpu};
 
 fn main() {
+    // linux example
+    //let profile = OSProfile::new().linux_distro().build();
+    
+    // or
+    //let profile = OSProfile::new().is_wsl().build();
     let profile = OSProfile::new().win_edition().build();
     let arch = profile.arch;
     let os = profile.os;
@@ -20,3 +25,12 @@ fn main() {
     )
 }
 ```
+
+> Current Features
+
+- OS
+- Architecture
+- Windows Edition
+- WSL Detection
+- Linux Distro
+- GPU Enumeration
