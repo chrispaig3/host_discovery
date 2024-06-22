@@ -97,9 +97,9 @@ mod tests {
 
     #[test]
     fn test_sys_profile() {
-        let sys_profile = OSProfile::new().build();
-        assert_eq!(sys_profile.os, OS);
-        assert_eq!(sys_profile.arch, ARCH);
+        let profile = OSProfile::new().build();
+        assert_eq!(profile.os, OS);
+        assert_eq!(profile.arch, ARCH);
     }
 
     #[test]
