@@ -96,7 +96,7 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_sys_profile() {
+    fn test_profile() {
         let profile = OSProfile::new().build();
         assert_eq!(profile.os, OS);
         assert_eq!(profile.arch, ARCH);
