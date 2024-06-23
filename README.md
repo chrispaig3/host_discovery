@@ -1,3 +1,5 @@
+> This library is a work in progress
+
 # A simple Rust crate for host discovery
 
 ### Basic Usage
