@@ -4,7 +4,6 @@ use std::fs;
 #[cfg(target_os = "linux")]
 use std::path::Path;
 use wgpu::{Backends, Instance};
-
 #[cfg(target_os = "windows")]
 use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
 
