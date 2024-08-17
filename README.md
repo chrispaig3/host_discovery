@@ -36,3 +36,4 @@ fn main() {
 - WSL Detection
 - Linux Distro
 - GPU Enumeration
+- CPU Detection
