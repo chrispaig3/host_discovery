@@ -8,14 +8,6 @@ use wgpu::{Backends, Instance};
 #[cfg(target_os = "windows")]
 use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
 
-pub struct OSInfo {
-    pub os: &'static str,
-    pub arch: &'static str,
-    pub win_edition: Option<String>,
-    pub is_wsl: Option<bool>,
-    pub linux_distro: Option<String>,
-}
-
 pub struct OSProfile {
     pub os: &'static str,
     pub arch: &'static str,
@@ -69,8 +61,8 @@ impl OSProfile {
         self
     }
 
-    pub fn build(self) -> OSInfo {
-        OSInfo {
+    pub fn build(self) -> Self {
+        Self {
             os: self.os,
             arch: self.arch,
             win_edition: self.win_edition,
