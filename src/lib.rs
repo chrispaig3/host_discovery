@@ -3,6 +3,7 @@ use std::env::consts::{ARCH, OS};
 use std::fs;
 #[cfg(target_os = "linux")]
 use std::path::Path;
+use raw_cpuid::CpuId;
 use wgpu::{Backends, Instance};
 #[cfg(target_os = "windows")]
 use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
@@ -79,6 +80,16 @@ impl OSProfile {
     }
 }
 
+/// Returns the CPU model
+pub fn cpu() -> String {
+    let cpuid = CpuId::new();
+    let brand = cpuid.get_processor_brand_string().expect("Unsupported CPU");
+    
+    brand
+    .as_str()
+    .to_string()
+}
+
 /// Returns the GPU model
 pub fn gpu() -> Option<String> {
     let instance = Instance::default();
@@ -99,6 +110,12 @@ mod tests {
         let profile = OSProfile::new().build();
         assert_eq!(profile.os, OS);
         assert_eq!(profile.arch, ARCH);
+    }
+
+    #[test]
+    fn test_cpu() {
+        let cpu = cpu();
+        assert!(!cpu.is_empty());
     }
 
     #[test]

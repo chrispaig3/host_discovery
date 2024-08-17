@@ -9,6 +9,7 @@ repository = "https://github.com/v0idmatr1x/host_discovery"
 edition = "2021"
 
 [dependencies]
+raw-cpuid = "11.1.0"
 wgpu = "0.20.1"
 
 [target.'cfg(windows)'.dependencies]
