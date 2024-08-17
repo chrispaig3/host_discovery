@@ -10,7 +10,7 @@ edition = "2021"
 
 [dependencies]
 raw-cpuid = "11.1.0"
-wgpu = "0.20.1"
+wgpu = "22.1.0"
 
 [target.'cfg(windows)'.dependencies]
 winreg = "0.52.0"
