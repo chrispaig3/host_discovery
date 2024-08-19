@@ -72,7 +72,7 @@ impl OSProfile {
     }
 }
 
-/// Returns the CPU model
+/// Returns the CPU model (x86 only)
 pub fn cpu() -> String {
     let cpuid = CpuId::new();
     let brand = cpuid.get_processor_brand_string().expect("Unsupported CPU");
@@ -82,7 +82,7 @@ pub fn cpu() -> String {
     .to_string()
 }
 
-/// Returns the number of CPU cores available for processing
+/// Returns the number of CPU cores available for processing (x86 only)
 pub fn cores() -> u32 {
     let cpuid = CpuId::new();
     let proc_cap_features = cpuid
