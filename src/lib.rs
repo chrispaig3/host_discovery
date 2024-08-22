@@ -96,17 +96,6 @@ pub fn cpu() -> Processor {
     cpu
 }
 
-/// Returns the number of CPU cores available for processing (x86 only)
-pub fn cores() -> u32 {
-    let cpuid = CpuId::new();
-    let proc_cap_features = cpuid
-        .get_processor_capacity_feature_info()
-        .expect("Unsupported CPU");
-
-    let cores = proc_cap_features.maximum_logical_processors();
-    cores as u32
-}
-
 /// Returns the GPU model
 pub fn gpu() -> Option<String> {
     let instance = Instance::default();
@@ -134,12 +123,6 @@ mod tests {
         let cpu = cpu();
         assert!(!cpu.model.is_empty());
         assert_eq!(cpu.cores, 16);
-    }
-
-    #[test]
-    fn test_cores() {
-        let cores = cores();
-        assert!(cores > 0);
     }
 
     #[test]
