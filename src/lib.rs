@@ -1,9 +1,9 @@
+use raw_cpuid::CpuId;
 use std::env::consts::{ARCH, OS};
 #[cfg(target_os = "linux")]
 use std::fs;
 #[cfg(target_os = "linux")]
 use std::path::Path;
-use raw_cpuid::CpuId;
 use wgpu::{Backends, Instance};
 #[cfg(target_os = "windows")]
 use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
@@ -31,9 +31,13 @@ impl OSProfile {
     #[cfg(target_os = "windows")]
     pub fn win_edition(mut self) -> Self {
         let sub_key = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion";
-        let reg = RegKey::predef(HKEY_LOCAL_MACHINE).open_subkey(sub_key).expect("Failed to open registry key");
-        let edition: String = reg.get_value("EditionID").expect("Failed to get Windows edition from registry");
-        
+        let reg = RegKey::predef(HKEY_LOCAL_MACHINE)
+            .open_subkey(sub_key)
+            .expect("Failed to open registry key");
+        let edition: String = reg
+            .get_value("EditionID")
+            .expect("Failed to get Windows edition from registry");
+
         self.win_edition = Some(edition);
         self
     }
@@ -47,7 +51,7 @@ impl OSProfile {
             .iter()
             .filter(|line| line.contains("PRETTY_NAME"))
             .collect::<Vec<&&str>>();
-        
+
         let distro = pretty_name[0].split("=").collect::<Vec<&str>>()[1].replace("\"", "");
         self.linux_distro = Some(distro);
         self
@@ -76,10 +80,8 @@ impl OSProfile {
 pub fn cpu() -> String {
     let cpuid = CpuId::new();
     let brand = cpuid.get_processor_brand_string().expect("Unsupported CPU");
-    
-    brand
-    .as_str()
-    .to_string()
+
+    brand.as_str().to_string()
 }
 
 /// Returns the number of CPU cores available for processing (x86 only)
@@ -88,7 +90,7 @@ pub fn cores() -> u32 {
     let proc_cap_features = cpuid
         .get_processor_capacity_feature_info()
         .expect("Unsupported CPU");
-    
+
     let cores = proc_cap_features.maximum_logical_processors();
     cores as u32
 }
@@ -96,7 +98,7 @@ pub fn cores() -> u32 {
 /// Returns the GPU model
 pub fn gpu() -> Option<String> {
     let instance = Instance::default();
-    
+
     for adapter in instance.enumerate_adapters(Backends::all()) {
         let name = adapter.get_info().name;
         return Some(name);
