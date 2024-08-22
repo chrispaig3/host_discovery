@@ -16,6 +16,11 @@ pub struct OSProfile {
     pub linux_distro: Option<String>,
 }
 
+pub struct Processor {
+    pub model: String,
+    pub cores: u32,
+}
+
 impl OSProfile {
     pub fn new() -> Self {
         Self {
@@ -76,12 +81,19 @@ impl OSProfile {
     }
 }
 
-/// Returns the CPU model (x86 only)
-pub fn cpu() -> String {
+/// Returns a `Processor` object containing the CPU model and core count  (x86 only)
+pub fn cpu() -> Processor {
     let cpuid = CpuId::new();
     let brand = cpuid.get_processor_brand_string().expect("Unsupported CPU");
+    let cores = cpuid
+        .get_processor_capacity_feature_info()
+        .expect("Failed to retrieve proc cap info");
 
-    brand.as_str().to_string()
+    let cpu = Processor {
+        model: brand.as_str().to_string(),
+        cores: cores.maximum_logical_processors() as u32,
+    };
+    cpu
 }
 
 /// Returns the number of CPU cores available for processing (x86 only)
@@ -120,7 +132,8 @@ mod tests {
     #[test]
     fn test_cpu() {
         let cpu = cpu();
-        assert!(!cpu.is_empty());
+        assert!(!cpu.model.is_empty());
+        assert_eq!(cpu.cores, 16);
     }
 
     #[test]
