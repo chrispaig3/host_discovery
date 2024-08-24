@@ -1,4 +1,4 @@
-use raw_cpuid::CpuId;
+use raw_cpuid::{CpuId, ProcessorBrandString};
 use std::env::consts::{ARCH, OS};
 #[cfg(target_os = "linux")]
 use std::fs;
@@ -17,7 +17,7 @@ pub struct OSProfile {
 }
 
 pub struct Processor {
-    pub model: String,
+    pub model: ProcessorBrandString,
     pub cores: u32,
 }
 
@@ -81,7 +81,7 @@ impl OSProfile {
     }
 }
 
-/// Returns a `Processor` object containing the CPU model and core count  (x86 only)
+/// Returns a `Processor` object containing the CPU model and logical core count  (x86 only)
 pub fn cpu() -> Processor {
     let cpuid = CpuId::new();
     let brand = cpuid.get_processor_brand_string().expect("Unsupported CPU");
@@ -90,7 +90,7 @@ pub fn cpu() -> Processor {
         .expect("Failed to retrieve proc cap info");
 
     let cpu = Processor {
-        model: brand.as_str().to_string(),
+        model: brand,
         cores: cores.maximum_logical_processors() as u32,
     };
     cpu
@@ -121,7 +121,7 @@ mod tests {
     #[test]
     fn test_cpu() {
         let cpu = cpu();
-        assert!(!cpu.model.is_empty());
+        assert!(cpu.model.as_str().starts_with("AMD"));
         assert_eq!(cpu.cores, 16);
     }
 
