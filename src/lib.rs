@@ -8,6 +8,7 @@ use wgpu::{Backends, Instance};
 #[cfg(target_os = "windows")]
 use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
 
+#[derive(Debug)]
 pub struct OSProfile {
     pub os: &'static str,
     pub arch: &'static str,
@@ -16,6 +17,7 @@ pub struct OSProfile {
     pub linux_distro: Option<String>,
 }
 
+#[derive(Debug)]
 pub struct Processor {
     pub model: ProcessorBrandString,
     pub cores: u32,
@@ -116,6 +118,20 @@ mod tests {
         let profile = OSProfile::new().build();
         assert_eq!(profile.os, OS);
         assert_eq!(profile.arch, ARCH);
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn test_distro() {
+        let distro = OSProfile::new().linux_distro().build();
+        assert!(distro.linux_distro.unwrap().starts_with("Fedora"));
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn test_wsl() {
+        let is_wsl = OSProfile::new().is_wsl().build();
+        assert_eq!(is_wsl.is_wsl, Some(false));
     }
 
     #[test]
