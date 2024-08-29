@@ -130,8 +130,8 @@ mod tests {
     #[cfg(target_os = "linux")]
     #[test]
     fn test_wsl() {
-        let is_wsl = OSProfile::new().is_wsl().build();
-        assert_eq!(is_wsl.is_wsl, Some(false));
+        let wsl = OSProfile::new().is_wsl().build();
+        assert_eq!(wsl.is_wsl, Some(false));
     }
 
     #[test]
