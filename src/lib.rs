@@ -120,14 +120,12 @@ mod tests {
         assert_eq!(profile.arch, ARCH);
     }
 
-    #[cfg(target_os = "linux")]
     #[test]
     fn test_distro() {
         let distro = OSProfile::new().linux_distro().build();
         assert!(distro.linux_distro.unwrap().starts_with("Fedora"));
     }
 
-    #[cfg(target_os = "linux")]
     #[test]
     fn test_wsl() {
         let wsl = OSProfile::new().is_wsl().build();
