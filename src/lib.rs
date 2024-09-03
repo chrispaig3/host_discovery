@@ -23,6 +23,12 @@ pub struct Processor {
     pub cores: u32,
 }
 
+#[derive(Debug)]
+pub struct GPU {
+    pub model: String,
+    pub driver_version: String,
+}
+
 impl OSProfile {
     pub fn new() -> Self {
         Self {
@@ -98,13 +104,17 @@ pub fn cpu() -> Processor {
     cpu
 }
 
-/// Returns the GPU model
-pub fn gpu() -> Option<String> {
+/// Returns a `GPU` object containing the GPU model and driver version
+pub fn gpu() -> Option<GPU> {
     let instance = Instance::default();
 
     for adapter in instance.enumerate_adapters(Backends::all()) {
-        let name = adapter.get_info().name;
-        return Some(name);
+        let info = adapter.get_info();
+        let gpu = GPU {
+            model: info.name,
+            driver_version: info.driver_info,
+        };
+        return Some(gpu);
     }
     None
 }
@@ -143,5 +153,6 @@ mod tests {
     fn test_gpu() {
         let gpu = gpu();
         assert!(gpu.is_some());
+        println!("{:?}", gpu.unwrap().driver_version);
     }
 }
