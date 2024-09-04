@@ -1,4 +1,5 @@
 use raw_cpuid::{CpuId, ProcessorBrandString};
+use rayon::prelude::*;
 use std::env::consts::{ARCH, OS};
 #[cfg(target_os = "linux")]
 use std::fs;
@@ -61,7 +62,7 @@ impl OSProfile {
         let text = fs::read_to_string("/etc/os-release").expect("Failed to read /etc/os-release");
         let tokens = text.split("\n").collect::<Vec<&str>>();
         let pretty_name = tokens
-            .iter()
+            .par_iter()
             .filter(|line| line.contains("PRETTY_NAME"))
             .collect::<Vec<&&str>>();
 
@@ -153,6 +154,6 @@ mod tests {
     fn test_gpu() {
         let gpu = gpu();
         assert!(gpu.is_some());
-        println!("{:?}", gpu.unwrap().driver_version);
+        assert!(gpu.unwrap().driver_version.contains("5"))
     }
 }
