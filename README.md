@@ -28,6 +28,10 @@ fn main() {
 }
 ```
 
+#### Roadmap
+- Reduce dependency load by implementing a smaller utility crate for enumerating devices.
+    - The implementation should be flexbible and cross-platform 
+
 > Current Features
 
 - OS
