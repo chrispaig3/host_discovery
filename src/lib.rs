@@ -1,3 +1,4 @@
+use std::thread;
 use raw_cpuid::CpuId;
 use raw_cpuid::ProcessorBrandString;
 use rayon::prelude::*;
@@ -105,18 +106,20 @@ pub fn cpu() -> Processor {
 }
 
 /// Returns a `GPU` object containing the GPU model and driver version
-pub fn gpu() -> Option<GPU> {
+﻿﻿pub fn gpu() -> Option<GPU> {
     let instance = Instance::default();
-
-    for adapter in instance.enumerate_adapters(Backends::all()) {
-        let info = adapter.get_info();
-        let gpu = GPU {
-            model: info.name,
-            driver_version: info.driver_info,
-        };
-        return Some(gpu);
-    }
-    None
+    let t = thread::spawn(move || {
+        for adapter in instance.enumerate_adapters(Backends::all()) {
+            let info = adapter.get_info();
+            let gpu = GPU {
+                model: info.name,
+                driver_version: info.driver_info,
+            };
+            return Some(gpu);
+        }
+        None
+    });
+    t.join().unwrap()
 }
 
 #[cfg(test)]
