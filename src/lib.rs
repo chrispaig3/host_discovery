@@ -1,8 +1,11 @@
-use raw_cpuid::CpuId;
-use raw_cpuid::ProcessorBrandString;
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
+use raw_cpuid::{CpuId, ProcessorBrandString};
+#[cfg(target_os = "linux")]
 use rayon::prelude::*;
 use std::env::consts::{ARCH, OS};
+#[cfg(target_os = "linux")]
 use std::fs;
+#[cfg(target_os = "linux")]
 use std::path::Path;
 use std::thread;
 use wgpu::{Backends, Instance};
@@ -91,6 +94,7 @@ impl OSProfile {
 }
 
 /// Returns a `Processor` object containing the CPU model and logical core count  (x86 only)
+#[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub fn cpu() -> Processor {
     let cpuid = CpuId::new();
     let brand = cpuid.get_processor_brand_string().expect("Unsupported CPU");
@@ -133,18 +137,21 @@ mod tests {
         assert_eq!(profile.arch, ARCH);
     }
 
+    #[cfg(target_os = "linux")]
     #[test]
     fn test_distro() {
         let distro = OSProfile::new().linux_distro().build();
         assert!(distro.linux_distro.unwrap().starts_with("Fedora"));
     }
 
+    #[cfg(target_os = "linux")]
     #[test]
     fn test_wsl() {
         let wsl = OSProfile::new().is_wsl().build();
         assert_eq!(wsl.is_wsl, Some(false));
     }
 
+    #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
     #[test]
     fn test_cpu() {
         let cpu = cpu();
