@@ -1,10 +1,10 @@
-use std::thread;
 use raw_cpuid::CpuId;
 use raw_cpuid::ProcessorBrandString;
 use rayon::prelude::*;
 use std::env::consts::{ARCH, OS};
 use std::fs;
 use std::path::Path;
+use std::thread;
 use wgpu::{Backends, Instance};
 #[cfg(target_os = "windows")]
 use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
@@ -106,7 +106,7 @@ pub fn cpu() -> Processor {
 }
 
 /// Returns a `GPU` object containing the GPU model and driver version
-﻿﻿pub fn gpu() -> Option<GPU> {
+pub fn gpu() -> Option<GPU> {
     let instance = Instance::default();
     let t = thread::spawn(move || {
         for adapter in instance.enumerate_adapters(Backends::all()) {
