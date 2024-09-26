@@ -12,7 +12,6 @@ use wgpu::{Backends, Instance};
 #[cfg(target_os = "windows")]
 use windows_registry::*;
 
-
 #[derive(Debug)]
 pub struct OSProfile {
     pub os: &'static str,
