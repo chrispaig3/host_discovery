@@ -10,7 +10,8 @@ use std::path::Path;
 use std::thread;
 use wgpu::{Backends, Instance};
 #[cfg(target_os = "windows")]
-use winreg::{enums::HKEY_LOCAL_MACHINE, RegKey};
+use windows_registry::*;
+
 
 #[derive(Debug)]
 pub struct OSProfile {
@@ -47,14 +48,10 @@ impl OSProfile {
     /// Returns the Windows edition if a Windows system is available
     #[cfg(target_os = "windows")]
     pub fn win_edition(mut self) -> Self {
-        let sub_key = "SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion";
-        let reg = RegKey::predef(HKEY_LOCAL_MACHINE)
-            .open_subkey(sub_key)
-            .expect("Failed to open registry key");
-        let edition: String = reg
-            .get_value("EditionID")
-            .expect("Failed to get Windows edition from registry");
-
+        let key = LOCAL_MACHINE;
+        let sub_key = key.open("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion").unwrap();
+        let edition = sub_key.get_string("EditionID").unwrap();
+        
         self.win_edition = Some(edition);
         self
     }

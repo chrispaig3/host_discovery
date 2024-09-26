@@ -14,4 +14,4 @@ rayon = "1.10.0"
 wgpu = "22.1.0"
 
 [target.'cfg(windows)'.dependencies]
-winreg = "0.52.0"
+windows-registry = "0.3.0"
