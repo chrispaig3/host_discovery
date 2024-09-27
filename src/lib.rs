@@ -47,7 +47,8 @@ impl OSProfile {
     /// Returns the Windows edition if a Windows system is available
     #[cfg(target_os = "windows")]
     pub fn win_edition(mut self) -> Self {
-        let sub_key = LOCAL_MACHINE.open("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion").unwrap();
+        let key = LOCAL_MACHINE;
+        let sub_key = key.open("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion").unwrap();
         let edition = sub_key.get_string("EditionID").unwrap();
         
         self.win_edition = Some(edition);
