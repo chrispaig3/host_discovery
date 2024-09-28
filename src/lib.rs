@@ -2,12 +2,14 @@
 use raw_cpuid::{CpuId, ProcessorBrandString};
 #[cfg(target_os = "linux")]
 use rayon::prelude::*;
-use std::env::consts::{ARCH, OS};
 #[cfg(target_os = "linux")]
 use std::fs;
 #[cfg(target_os = "linux")]
 use std::path::Path;
-use std::thread;
+use std::{
+    env::consts::{ARCH, OS},
+    thread,
+};
 use wgpu::{Backends, Instance};
 #[cfg(target_os = "windows")]
 use windows_registry::*;
@@ -48,9 +50,11 @@ impl OSProfile {
     #[cfg(target_os = "windows")]
     pub fn win_edition(mut self) -> Self {
         let key = LOCAL_MACHINE;
-        let sub_key = key.open("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion").unwrap();
+        let sub_key = key
+            .open("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion")
+            .unwrap();
         let edition = sub_key.get_string("EditionID").unwrap();
-        
+
         self.win_edition = Some(edition);
         self
     }
@@ -93,10 +97,8 @@ impl OSProfile {
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 pub fn cpu() -> Processor {
     let cpuid = CpuId::new();
-    let brand = cpuid.get_processor_brand_string().expect("Unsupported CPU");
-    let cores = cpuid
-        .get_processor_capacity_feature_info()
-        .expect("Failed to retrieve proc cap info");
+    let brand = cpuid.get_processor_brand_string().unwrap();
+    let cores = cpuid.get_processor_capacity_feature_info().unwrap();
 
     let cpu = Processor {
         model: brand,
