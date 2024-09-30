@@ -13,7 +13,7 @@ use std::{
 };
 use wgpu::{Backends, Instance};
 #[cfg(target_os = "windows")]
-use windows_registry::*;
+use windows_registry::LOCAL_MACHINE;
 
 #[derive(Debug)]
 pub struct OSProfile {
