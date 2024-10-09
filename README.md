@@ -10,7 +10,7 @@ fn main() {
     // linux example
     //let profile = OSProfile::new().linux_distro().build();
     
-    // or
+    // and/or
     //let profile = OSProfile::new().is_wsl().build();
     let profile = OSProfile::new().win_edition().build();
     let arch = profile.arch;
