@@ -36,6 +36,12 @@ pub struct GPU {
     pub driver_version: String,
 }
 
+impl std::fmt::Display for GPU {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "Model: {}, Version: {}", self.model, self.driver_version)
+    }
+}
+
 impl OSProfile {
     pub fn new() -> Self {
         Self {
