@@ -38,7 +38,11 @@ pub struct GPU {
 
 impl std::fmt::Display for GPU {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "Model: {}, Version: {}", self.model, self.driver_version)
+        write!(
+            f,
+            "Model: {}, Driver Version: {}",
+            self.model, self.driver_version
+        )
     }
 }
 
