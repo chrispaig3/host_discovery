@@ -33,14 +33,14 @@ pub struct Processor {
 }
 
 #[derive(Debug)]
-pub struct GPU {
+pub struct GraphicsCard {
     pub model: String,
     pub driver_version: String,
 }
 
 impl_display!(OSProfile);
 impl_display!(Processor);
-impl_display!(GPU);
+impl_display!(GraphicsCard);
 
 impl OSProfile {
     pub fn new() -> Self {
@@ -60,8 +60,8 @@ impl OSProfile {
         let sub_key = key
             .open("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion")
             .unwrap();
-        let edition = sub_key.get_string("EditionID").unwrap();
 
+        let edition = sub_key.get_string("EditionID").unwrap();
         self.win_edition = Some(edition);
         self
     }
@@ -114,13 +114,13 @@ pub fn cpu() -> Processor {
     cpu
 }
 
-/// Returns a `GPU` object containing the GPU model and driver version
-pub fn gpu() -> Option<GPU> {
+/// Returns a `GraphicsCard` object containing the GPU model and driver version
+pub fn gpu() -> Option<GraphicsCard> {
     let instance = Instance::default();
     let t = thread::spawn(move || {
         for adapter in instance.enumerate_adapters(Backends::all()) {
             let info = adapter.get_info();
-            let gpu = GPU {
+            let gpu = GraphicsCard {
                 model: info.name,
                 driver_version: info.driver_info,
             };
