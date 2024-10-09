@@ -15,6 +15,8 @@ use wgpu::{Backends, Instance};
 #[cfg(target_os = "windows")]
 use windows_registry::LOCAL_MACHINE;
 
+mod display;
+
 #[derive(Debug)]
 pub struct OSProfile {
     pub os: &'static str,
@@ -36,15 +38,9 @@ pub struct GPU {
     pub driver_version: String,
 }
 
-impl std::fmt::Display for GPU {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "Model: {}, Driver Version: {}",
-            self.model, self.driver_version
-        )
-    }
-}
+impl_display!(OSProfile);
+impl_display!(Processor);
+impl_display!(GPU);
 
 impl OSProfile {
     pub fn new() -> Self {
