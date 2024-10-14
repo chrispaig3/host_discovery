@@ -18,9 +18,9 @@ use windows_registry::LOCAL_MACHINE;
 mod display;
 
 #[derive(Debug)]
-pub struct OSProfile {
-    pub os: &'static str,
-    pub arch: &'static str,
+pub struct OSProfile<'o, 'a> {
+    pub os: &'o str,
+    pub arch: &'a str,
     pub win_edition: Option<String>,
     pub is_wsl: Option<bool>,
     pub linux_distro: Option<String>,
@@ -38,11 +38,16 @@ pub struct GraphicsCard {
     pub driver_version: String,
 }
 
-impl_display!(OSProfile);
-impl_display!(Processor);
-impl_display!(GraphicsCard);
+impl<'o, 'a> std::fmt::Display for OSProfile<'o, 'a> {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "{:?}", self)
+    }
+}
+// display_with_lifetimes!(OSProfile);
+display!(Processor);
+display!(GraphicsCard);
 
-impl OSProfile {
+impl<'o, 'a> OSProfile<'o, 'a> {
     pub fn new() -> Self {
         Self {
             os: OS,
