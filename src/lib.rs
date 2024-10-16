@@ -22,6 +22,7 @@ pub struct OSProfile<'o, 'a> {
     pub os: &'o str,
     pub arch: &'a str,
     pub win_edition: Option<String>,
+    pub computer_name: Option<String>,
     pub is_wsl: Option<bool>,
     pub linux_distro: Option<String>,
 }
@@ -53,21 +54,36 @@ impl<'o, 'a> OSProfile<'o, 'a> {
             os: OS,
             arch: ARCH,
             win_edition: None,
+            computer_name: None,
             is_wsl: None,
             linux_distro: None,
         }
     }
 
-    /// Returns the Windows edition if a Windows system is available
+    /// Returns the Windows Edition if a Windows system is available
     #[cfg(target_os = "windows")]
     pub fn win_edition(mut self) -> Self {
         let key = LOCAL_MACHINE;
         let sub_key = key
             .open("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion")
-            .unwrap();
-
-        let edition = sub_key.get_string("EditionID").unwrap();
+            .expect("Failed to find registry path for: CurrentVersion");
+        let edition = sub_key.get_string("EditionID")
+            .expect("Failed to identify Windows Edition");
+        
         self.win_edition = Some(edition);
+        self
+    }
+
+    /// Returns the ComputerName if a Windows system is available
+    #[cfg(target_os = "windows")]
+    pub fn computer_name(mut self) -> Self {
+        let key = LOCAL_MACHINE;
+        let sub_key = key.open("SYSTEM\\CurrentControlSet\\Control\\ComputerName\\ComputerName")
+            .expect("Failed to find registry path for: ComputerName");    
+        let name = sub_key.get_string("ComputerName")
+            .expect("Failed to find key: ComputerName");
+        
+        self.computer_name = Some(name);
         self
     }
 
@@ -99,6 +115,7 @@ impl<'o, 'a> OSProfile<'o, 'a> {
             os: self.os,
             arch: self.arch,
             win_edition: self.win_edition,
+            computer_name: self.computer_name,
             is_wsl: self.is_wsl,
             linux_distro: self.linux_distro,
         }
@@ -139,14 +156,22 @@ pub fn gpu() -> Option<GraphicsCard> {
 #[cfg(test)]
 mod tests {
     use super::*;
-
+    
     #[test]
     fn test_profile() {
         let profile = OSProfile::new().build();
         assert_eq!(profile.os, OS);
         assert_eq!(profile.arch, ARCH);
     }
-
+    
+    #[cfg(target_os = "windows")]
+    #[test]
+    fn test_computer_name() {
+        let profile = OSProfile::new().computer_name().build();
+        let name = profile.computer_name.unwrap();
+        assert_eq!(name, "WORK");
+    }
+    
     #[cfg(target_os = "linux")]
     #[test]
     fn test_distro() {
@@ -174,4 +199,5 @@ mod tests {
         let gpu = gpu();
         assert!(gpu.is_some());
     }
+
 }
