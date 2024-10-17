@@ -24,7 +24,7 @@ pub struct OSProfile<'o, 'a> {
     pub win_edition: Option<String>,
     pub computer_name: Option<String>,
     pub is_wsl: Option<bool>,
-    pub linux_distro: Option<String>,
+    pub distro: Option<String>,
 }
 
 #[derive(Debug)]
@@ -56,7 +56,7 @@ impl<'o, 'a> OSProfile<'o, 'a> {
             win_edition: None,
             computer_name: None,
             is_wsl: None,
-            linux_distro: None,
+            distro: None,
         }
     }
 
@@ -67,9 +67,10 @@ impl<'o, 'a> OSProfile<'o, 'a> {
         let sub_key = key
             .open("SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion")
             .expect("Failed to find registry path for: CurrentVersion");
-        let edition = sub_key.get_string("EditionID")
+        let edition = sub_key
+            .get_string("EditionID")
             .expect("Failed to identify Windows Edition");
-        
+
         self.win_edition = Some(edition);
         self
     }
@@ -78,18 +79,20 @@ impl<'o, 'a> OSProfile<'o, 'a> {
     #[cfg(target_os = "windows")]
     pub fn computer_name(mut self) -> Self {
         let key = LOCAL_MACHINE;
-        let sub_key = key.open("SYSTEM\\CurrentControlSet\\Control\\ComputerName\\ComputerName")
-            .expect("Failed to find registry path for: ComputerName");    
-        let name = sub_key.get_string("ComputerName")
+        let sub_key = key
+            .open("SYSTEM\\CurrentControlSet\\Control\\ComputerName\\ComputerName")
+            .expect("Failed to find registry path for: ComputerName");
+        let name = sub_key
+            .get_string("ComputerName")
             .expect("Failed to find key: ComputerName");
-        
+
         self.computer_name = Some(name);
         self
     }
 
     /// Returns the Linux distro if a Linux system is available
     #[cfg(target_os = "linux")]
-    pub fn linux_distro(mut self) -> Self {
+    pub fn distro(mut self) -> Self {
         let text = fs::read_to_string("/etc/os-release").expect("Failed to read /etc/os-release");
         let tokens = text.split("\n").collect::<Vec<&str>>();
         let pretty_name = tokens
@@ -98,7 +101,7 @@ impl<'o, 'a> OSProfile<'o, 'a> {
             .collect::<Vec<&&str>>();
 
         let distro = pretty_name[0].split("=").collect::<Vec<&str>>()[1].replace("\"", "");
-        self.linux_distro = Some(distro);
+        self.distro = Some(distro);
         self
     }
 
@@ -117,7 +120,7 @@ impl<'o, 'a> OSProfile<'o, 'a> {
             win_edition: self.win_edition,
             computer_name: self.computer_name,
             is_wsl: self.is_wsl,
-            linux_distro: self.linux_distro,
+            distro: self.distro,
         }
     }
 }
@@ -156,14 +159,14 @@ pub fn gpu() -> Option<GraphicsCard> {
 #[cfg(test)]
 mod tests {
     use super::*;
-    
+
     #[test]
     fn test_profile() {
         let profile = OSProfile::new().build();
         assert_eq!(profile.os, OS);
         assert_eq!(profile.arch, ARCH);
     }
-    
+
     #[cfg(target_os = "windows")]
     #[test]
     fn test_computer_name() {
@@ -171,12 +174,12 @@ mod tests {
         let name = profile.computer_name.unwrap();
         assert_eq!(name, "WORK");
     }
-    
+
     #[cfg(target_os = "linux")]
     #[test]
     fn test_distro() {
-        let distro = OSProfile::new().linux_distro().build();
-        assert!(distro.linux_distro.unwrap().starts_with("Fedora"));
+        let distro = OSProfile::new().distro().build();
+        assert!(distro.distro.unwrap().starts_with("Fedora"));
     }
 
     #[cfg(target_os = "linux")]
@@ -199,5 +202,4 @@ mod tests {
         let gpu = gpu();
         assert!(gpu.is_some());
     }
-
 }
