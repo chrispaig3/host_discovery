@@ -8,7 +8,7 @@ use host_discovery::{OSProfile, gpu};
 
 fn main() {
     // linux example
-    //let profile = OSProfile::new().linux_distro().build();
+    //let profile = OSProfile::new().distro().build();
     
     // and/or
     //let profile = OSProfile::new().is_wsl().build();
