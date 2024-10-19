@@ -203,8 +203,8 @@ mod tests {
     #[cfg(target_os = "linux")]
     #[test]
     fn test_wsl() {
-        let wsl = OSProfile::new().is_wsl().build();
-        assert_eq!(wsl.is_wsl, Some(false));
+        let profile = OSProfile::new().is_wsl().build();
+        assert_eq!(profile.is_wsl, Some(false));
     }
 
     #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
