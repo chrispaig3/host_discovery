@@ -25,6 +25,7 @@ pub struct OSProfile<'o, 'a> {
     pub computer_name: Option<String>,
     pub is_wsl: Option<bool>,
     pub distro: Option<String>,
+    pub hostname: Option<String>,
 }
 
 #[derive(Debug)]
@@ -57,6 +58,7 @@ impl<'o, 'a> OSProfile<'o, 'a> {
             computer_name: None,
             is_wsl: None,
             distro: None,
+            hostname: None,
         }
     }
 
@@ -105,6 +107,14 @@ impl<'o, 'a> OSProfile<'o, 'a> {
         self
     }
 
+    /// Returns the hostname if a Linux system is available
+    #[cfg(target_os = "linux")]
+    pub fn hostname(mut self) -> Self {
+        let name = fs::read_to_string("/etc/hostname").expect("Failed to read /etc/hostname");
+        self.hostname = Some(name.as_str().trim().to_string());
+        self
+    }
+
     /// Returns true if the Linux host is running on WSL
     #[cfg(target_os = "linux")]
     pub fn is_wsl(mut self) -> Self {
@@ -121,6 +131,7 @@ impl<'o, 'a> OSProfile<'o, 'a> {
             computer_name: self.computer_name,
             is_wsl: self.is_wsl,
             distro: self.distro,
+            hostname: self.hostname,
         }
     }
 }
@@ -178,8 +189,15 @@ mod tests {
     #[cfg(target_os = "linux")]
     #[test]
     fn test_distro() {
-        let distro = OSProfile::new().distro().build();
-        assert!(distro.distro.unwrap().starts_with("Fedora"));
+        let profile = OSProfile::new().distro().build();
+        assert!(profile.distro.unwrap().starts_with("Fedora"));
+    }
+
+    #[cfg(target_os = "linux")]
+    #[test]
+    fn test_hostname() {
+        let profile = OSProfile::new().hostname().build();
+        assert_eq!(profile.hostname, Some("Work".to_string()));
     }
 
     #[cfg(target_os = "linux")]
