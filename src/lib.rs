@@ -111,7 +111,7 @@ impl<'o, 'a> OSProfile<'o, 'a> {
     #[cfg(target_os = "linux")]
     pub fn hostname(mut self) -> Self {
         let name = fs::read_to_string("/etc/hostname").expect("Failed to read /etc/hostname");
-        self.hostname = Some(name.as_str().trim().to_string());
+        self.hostname = Some(name.split("\n").collect::<String>());
         self
     }
 
