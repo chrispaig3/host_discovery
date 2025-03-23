@@ -182,7 +182,6 @@ pub fn x86_cpu() -> Processor<ProcessorBrandString, u32> {
 /// Returns a `GraphicsCard` object containing the GPU model and driver version
 pub fn gpu() -> Option<GraphicsCard> {
     let instance = Instance::default();
-    let t = thread::spawn(move || {
         for adapter in instance.enumerate_adapters(Backends::all()) {
             let info = adapter.get_info();
             let gpu = GraphicsCard {
@@ -192,6 +191,4 @@ pub fn gpu() -> Option<GraphicsCard> {
             return Some(gpu);
         }
         None
-    });
-    t.join().unwrap()
 }
