@@ -11,10 +11,7 @@ use std::fs;
 use std::path::Path;
 #[cfg(target_os = "macos")]
 use std::process::Command;
-use std::{
-    env::consts::{ARCH, OS},
-    thread,
-};
+use std::env::consts::{ARCH, OS};
 use wgpu::{Backends, Instance};
 #[cfg(target_os = "windows")]
 use windows_registry::LOCAL_MACHINE;
@@ -182,13 +179,13 @@ pub fn x86_cpu() -> Processor<ProcessorBrandString, u32> {
 /// Returns a `GraphicsCard` object containing the GPU model and driver version
 pub fn gpu() -> Option<GraphicsCard> {
     let instance = Instance::default();
-        for adapter in instance.enumerate_adapters(Backends::all()) {
-            let info = adapter.get_info();
-            let gpu = GraphicsCard {
+    for adapter in instance.enumerate_adapters(Backends::all()) {
+        let info = adapter.get_info();
+        let gpu = GraphicsCard {
                 model: info.name,
                 driver_version: info.driver_info,
-            };
-            return Some(gpu);
-        }
-        None
+        };
+        return Some(gpu);
+    }
+    None
 }
