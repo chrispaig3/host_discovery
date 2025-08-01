@@ -1,4 +1,4 @@
-# This repository is no longer maintained. 
+~~#This repository is no longer maintained.~~ A full re-write is in the works!
 
 This crate might be a better choice: [Whoami](https://github.com/ardaku/whoami)
 
