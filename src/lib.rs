@@ -1,3 +1,5 @@
+#![feature(cfg_select)]
+
 #[warn(missing_docs, missing_debug_implementations)]
 #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
 use raw_cpuid::CpuId;
@@ -5,13 +7,13 @@ use raw_cpuid::CpuId;
 use raw_cpuid::ProcessorBrandString;
 #[cfg(target_os = "linux")]
 use rayon::prelude::*;
+use std::env::consts::{ARCH, OS};
 #[cfg(target_os = "linux")]
 use std::fs;
 #[cfg(target_os = "linux")]
 use std::path::Path;
 #[cfg(target_os = "macos")]
 use std::process::Command;
-use std::env::consts::{ARCH, OS};
 use wgpu::{Backends, Instance};
 #[cfg(target_os = "windows")]
 use windows_registry::LOCAL_MACHINE;
@@ -140,26 +142,29 @@ impl<'o, 'a> OSProfile<'o, 'a> {
     }
 }
 
-/// Returns a `Processor` object containing the CPU model and logical core count (macOS only)
-#[cfg(target_os = "macos")]
-pub fn sysctl_cpu() -> Processor<String, String> {
-    let get_sysctl_output = |arg: &str| -> String {
-        let output = Command::new("sysctl")
-            .arg(arg)
-            .output()
-            .expect("Failed to execute sysctl command");
-        String::from_utf8(output.stdout)
-            .unwrap()
-            .split(": ")
-            .nth(1)
-            .unwrap()
-            .trim()
-            .to_string()
-    };
+cfg_select! {
+    target_os = "macos" => {
+        pub fn sysctl_cpu() -> Processor<String, String> {
+            let get_sysctl_output = |arg: &str| -> String {
+            let output = Command::new("sysctl")
+                .arg(arg)
+                .output()
+                .expect("Failed to execute sysctl command");
 
-    Processor {
-        model: get_sysctl_output("machdep.cpu.brand_string"),
-        cores: get_sysctl_output("hw.logicalcpu"),
+            String::from_utf8(output.stdout)
+                .unwrap()
+                .split(": ")
+                .nth(1)
+                .unwrap()
+                .trim()
+                .to_string()
+        };
+
+            Processor {
+                model: get_sysctl_output("machdep.cpu.brand_string"),
+                cores: get_sysctl_output("hw.logicalcpu"),
+            }
+        }
     }
 }
 
@@ -182,8 +187,8 @@ pub fn gpu() -> Option<GraphicsCard> {
     for adapter in instance.enumerate_adapters(Backends::all()) {
         let info = adapter.get_info();
         let gpu = GraphicsCard {
-                model: info.name,
-                driver_version: info.driver_info,
+            model: info.name,
+            driver_version: info.driver_info,
         };
         return Some(gpu);
     }
