@@ -181,19 +181,6 @@ cfg_select! {
     }
 }
 
-/// Returns a `Processor` object containing the CPU model and logical core count  (x86 only)
-// #[cfg(any(target_arch = "x86", target_arch = "x86_64"))]
-// pub fn x86_cpu() -> Processor<ProcessorBrandString, u32> {
-//     let cpuid = CpuId::new();
-//     let brand = cpuid.get_processor_brand_string().unwrap();
-//     let cores = cpuid.get_processor_capacity_feature_info().unwrap();
-
-//     Processor {
-//         model: brand,
-//         cores: cores.maximum_logical_processors() as u32,
-//     }
-// }
-
 /// Returns a `GraphicsCard` object containing the GPU model and driver version
 pub fn gpu() -> Option<GraphicsCard> {
     let instance = Instance::default();
